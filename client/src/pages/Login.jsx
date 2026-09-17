@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Logo from '../components/Logo';
 
 const Login = ({ onLogin }) => {
   return (
@@ -9,8 +10,8 @@ const Login = ({ onLogin }) => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl border border-slate-800 p-8 rounded-3xl shadow-2xl"
       >
-        <div className="text-center mb-10">
-          <div className="text-5xl mb-4">🔄</div>
+        <div className="text-center mb-10 flex flex-col items-center">
+          <Logo className="w-16 h-16 mb-6" color="#ffffff" />
           <h1 className="text-4xl font-bold text-white mb-2">RevTutor</h1>
           <p className="text-indigo-300 font-medium tracking-wide">Elite JEE / NEET Prep</p>
         </div>
