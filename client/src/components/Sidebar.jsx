@@ -1,20 +1,28 @@
 import React from 'react';
-import { Home, BookOpen, FileText, Settings, LogOut } from 'lucide-react';
+import { Home, BookOpen, FileText, Settings, LogOut, HeartPulse, Settings2 } from 'lucide-react';
 
-const Sidebar = ({ activeScreen, setActiveScreen, onLogout }) => {
+const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
+  const isNeet = examType === 'NEET';
+  const themeColor = isNeet ? 'text-emerald-500' : 'text-indigo-500';
+  const themeBg = isNeet ? 'bg-emerald-600' : 'bg-indigo-600';
+  const themeShadow = isNeet ? 'shadow-emerald-900/50' : 'shadow-indigo-900/50';
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
-    { id: 'past-papers', label: 'Past Papers (MCQs)', icon: <FileText size={20} /> },
-    { id: 'study-map', label: 'Teach AI (Study Map)', icon: <BookOpen size={20} /> },
+    { id: 'past-papers', label: 'Past Papers (PYQ)', icon: <FileText size={20} /> },
+    { id: 'study-map', label: 'Teach AI (Syllabus)', icon: <BookOpen size={20} /> },
   ];
 
   return (
     <div className="w-64 bg-slate-900 text-slate-300 h-screen flex flex-col fixed left-0 top-0 border-r border-slate-800">
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-          <span className="text-indigo-500">🔄</span> RevTutor
+          {isNeet ? <HeartPulse className={themeColor} size={28}/> : <Settings2 className={themeColor} size={28}/>}
+          RevTutor
         </h1>
-        <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">JEE / NEET Prep</p>
+        <p className={`text-xs mt-1 uppercase tracking-wider font-bold ${themeColor}`}>
+          {examType} PREP
+        </p>
       </div>
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -24,7 +32,7 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout }) => {
             onClick={() => setActiveScreen(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
               activeScreen === item.id 
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' 
+                ? `${themeBg} text-white shadow-lg ${themeShadow}` 
                 : 'hover:bg-slate-800 hover:text-white'
             }`}
           >
@@ -35,13 +43,9 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout }) => {
       </nav>
 
       <div className="p-4 border-t border-slate-800 space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all duration-200">
-          <Settings size={20} />
-          <span className="font-medium">Settings</span>
-        </button>
         <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-900/30 text-red-400 hover:text-red-300 transition-all duration-200">
           <LogOut size={20} />
-          <span className="font-medium">Sign Out</span>
+          <span className="font-medium">Switch Target</span>
         </button>
       </div>
     </div>
@@ -49,4 +53,3 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout }) => {
 };
 
 export default Sidebar;
-
