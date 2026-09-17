@@ -20,7 +20,7 @@ const Home = ({ onStart }) => {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Daily Streak</p>
-            <p className="text-3xl font-bold text-slate-800">12 Days</p>
+            <p className="text-3xl font-bold text-slate-800">0 Days</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
@@ -29,7 +29,7 @@ const Home = ({ onStart }) => {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Problems Solved</p>
-            <p className="text-3xl font-bold text-slate-800">148</p>
+            <p className="text-3xl font-bold text-slate-800">0</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
@@ -38,7 +38,7 @@ const Home = ({ onStart }) => {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Accuracy Score</p>
-            <p className="text-3xl font-bold text-slate-800">92%</p>
+            <p className="text-3xl font-bold text-slate-800">--%</p>
           </div>
         </div>
       </div>
