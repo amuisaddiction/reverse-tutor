@@ -1,1 +1,12 @@
-// Placeholder for package.json
+{
+  "name": "reverse-tutor-root",
+  "version": "1.0.0",
+  "description": "Reverse Tutor MVP",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev": "npm run dev:server & npm run dev:client"
+  },
+  "devDependencies": {}
+}
