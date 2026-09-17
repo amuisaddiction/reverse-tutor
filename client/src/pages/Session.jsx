@@ -22,7 +22,7 @@ const Session = ({ topic, difficulty, onBack }) => {
 
   useEffect(() => {
     setMessages([
-      { role: 'assistant', content: `Hey, I'm trying to understand ${topic.label} but I'm a bit confused. Can you explain it to me?` }
+      { role: 'assistant', content: `Hey, I'm struggling with ${topic.label}. I think I have a flawed understanding of it. Can you explain it to me?` }
     ]);
   }, [topic]);
 
@@ -82,7 +82,7 @@ const Session = ({ topic, difficulty, onBack }) => {
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "Hmm, I got confused (network error) — try again?" }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Network error occurred." }]);
     }
     setLoading(false);
   };
@@ -92,28 +92,31 @@ const Session = ({ topic, difficulty, onBack }) => {
     : 0;
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F2F8]">
-      <header className="bg-white p-4 shadow-sm flex items-center justify-between z-10">
-        <button onClick={onBack} className="text-gray-500 font-bold hover:text-gray-800">
-          ← Back
+    <div className="flex flex-col h-screen bg-slate-50">
+      <header className="bg-white px-8 py-5 shadow-sm border-b border-slate-200 flex items-center justify-between z-10">
+        <button onClick={onBack} className="text-slate-400 font-bold hover:text-slate-800 transition-colors">
+          ← Exit Session
         </button>
-        <h2 className="font-bold text-xl">{topic.emoji} {topic.label}</h2>
-        <div className="w-16"></div>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{topic.emoji}</span>
+          <h2 className="font-bold text-xl text-slate-800">{topic.label}</h2>
+        </div>
+        <div className="w-24"></div>
       </header>
 
-      <div className="bg-white px-6 py-4 shadow-sm z-10 sticky top-0">
+      <div className="bg-white/80 backdrop-blur-md px-8 py-5 shadow-sm border-b border-slate-200 z-10 sticky top-0">
         <MeterBar score={score} shake={shakeMeter} />
       </div>
 
-      <main className="flex-1 overflow-y-auto p-4 flex justify-center">
-        <div className="w-full max-w-3xl flex flex-col justify-end min-h-full pb-4">
+      <main className="flex-1 overflow-y-auto p-8 flex justify-center bg-slate-50">
+        <div className="w-full max-w-3xl flex flex-col justify-end min-h-full pb-8">
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
           {loading && (
-            <div className="flex w-full mb-4 justify-start">
-               <div className="bg-[#F5F2F8] text-[#2A1B3D] font-serif italic max-w-[80%] rounded-2xl p-4">
-                 Ravi is thinking...
+            <div className="flex w-full mb-6 justify-start">
+               <div className="bg-white border border-slate-200 text-slate-400 font-serif italic max-w-[75%] rounded-2xl rounded-tl-sm p-5 shadow-sm">
+                 Thinking...
                </div>
             </div>
           )}
@@ -122,30 +125,30 @@ const Session = ({ topic, difficulty, onBack }) => {
       </main>
 
       {sessionComplete && !showScore && (
-        <div className="p-4 bg-white flex justify-center shadow-lg z-20">
+        <div className="p-6 bg-white border-t border-slate-200 flex justify-center shadow-2xl z-20">
           <button 
             onClick={() => setShowScore(true)}
-            className="w-full max-w-md bg-[#7FB3A0] text-white font-bold py-3 rounded-full hover:bg-opacity-90"
+            className="w-full max-w-md bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/30"
           >
-            Reveal the Bug
+            Reveal the Misconception
           </button>
         </div>
       )}
 
       {!sessionComplete && (
-        <div className="p-4 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20 flex justify-center">
-          <form onSubmit={handleSend} className="flex gap-2 w-full max-w-3xl">
+        <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] z-20 flex justify-center">
+          <form onSubmit={handleSend} className="flex gap-4 w-full max-w-3xl">
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type your explanation..." 
-              className="flex-1 border-2 border-gray-200 rounded-full px-6 py-3 focus:outline-none focus:border-[#5B3FD4]"
+              placeholder="Type your explanation to correct the AI..." 
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all text-slate-800"
             />
             <button 
               type="submit" 
               disabled={loading || !input.trim()}
-              className="bg-[#5B3FD4] text-white px-6 py-3 rounded-full font-bold hover:bg-opacity-90 disabled:opacity-50"
+              className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-500 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-600/30"
             >
               Send
             </button>
@@ -154,7 +157,7 @@ const Session = ({ topic, difficulty, onBack }) => {
       )}
 
       {showScore && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <ScoreCard 
             topic={topic}
             difficulty={difficulty}

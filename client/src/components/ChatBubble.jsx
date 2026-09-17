@@ -8,17 +8,17 @@ const ChatBubble = ({ message }) => {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex w-full mb-4 ${isAI ? 'justify-start' : 'justify-end'}`}
+      className={`flex w-full mb-6 ${isAI ? 'justify-start' : 'justify-end'}`}
     >
       <div 
-        className={`max-w-[80%] rounded-2xl p-4 ${
+        className={`max-w-[75%] p-5 rounded-2xl shadow-sm ${
           isAI 
-            ? 'bg-[#F5F2F8] text-[#2A1B3D] font-serif italic' 
-            : 'bg-[#5B3FD4] text-white'
+            ? 'bg-white border border-slate-200 text-slate-700 font-serif rounded-tl-sm' 
+            : 'bg-indigo-600 text-white rounded-tr-sm'
         }`}
       >
-        {isAI && <div className="text-xs font-bold text-[#5B3FD4] mb-1 not-italic">Ravi</div>}
-        <p className="leading-relaxed">{message.content}</p>
+        {isAI && <div className="text-xs font-bold text-indigo-500 mb-2 not-italic uppercase tracking-wider">AI Student</div>}
+        <p className="leading-relaxed text-[15px]">{message.content}</p>
       </div>
     </motion.div>
   );

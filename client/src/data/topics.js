@@ -4,6 +4,7 @@ export const TOPICS = [
     label: "Newton's 3rd Law",
     emoji: "⚡",
     subject: "Physics",
+    classLevel: 11,
     easy: {
       misconception: "If a truck and a bicycle collide, the truck exerts more force on the bicycle than the bicycle exerts on the truck.",
       hint: "Think about what Newton's 3rd Law actually says about the magnitudes."
@@ -14,17 +15,18 @@ export const TOPICS = [
     }
   },
   {
-    id: "chain-rule",
-    label: "Derivatives (Chain Rule)",
-    emoji: "📐",
-    subject: "Math",
+    id: "mag-force",
+    label: "Magnetic Force on Charge",
+    emoji: "🧲",
+    subject: "Physics",
+    classLevel: 12,
     easy: {
-      misconception: "To differentiate f(g(x)), you just do f'(x) * g'(x).",
-      hint: "What happens to the inside function when you take the derivative of the outside function?"
+      misconception: "A stationary charge placed in a strong magnetic field will start moving along the magnetic field lines.",
+      hint: "Look at the formula for magnetic force: F = qv × B. What happens if v = 0?"
     },
     hard: {
-      misconception: "I know it's f'(g(x)) * g'(x), but I think g'(x) is just a constant multiplier that we can pull out at the end.",
-      hint: "Is g'(x) evaluated at x or g(x)?"
+      misconception: "Magnetic fields do work on charged particles to speed them up.",
+      hint: "What is the angle between the magnetic force and the velocity vector?"
     }
   },
   {
@@ -32,6 +34,7 @@ export const TOPICS = [
     label: "Le Chatelier's Principle",
     emoji: "⚗️",
     subject: "Chemistry",
+    classLevel: 11,
     easy: {
       misconception: "Adding a catalyst to a reaction at equilibrium will shift it to the right to make more products.",
       hint: "Does a catalyst affect the equilibrium position, or just the speed?"
@@ -46,6 +49,7 @@ export const TOPICS = [
     label: "Ohm's Law",
     emoji: "🔋",
     subject: "Physics",
+    classLevel: 12,
     easy: {
       misconception: "If you increase the voltage across a fixed resistor, the resistance goes down because more current flows.",
       hint: "Is the resistor itself changing, or just the current?"
@@ -56,10 +60,26 @@ export const TOPICS = [
     }
   },
   {
+    id: "chain-rule",
+    label: "Chain Rule",
+    emoji: "📐",
+    subject: "Math",
+    classLevel: 12,
+    easy: {
+      misconception: "To differentiate f(g(x)), you just do f'(x) * g'(x).",
+      hint: "What happens to the inside function when you take the derivative of the outside function?"
+    },
+    hard: {
+      misconception: "I know it's f'(g(x)) * g'(x), but I think g'(x) is just a constant multiplier that we can pull out at the end.",
+      hint: "Is g'(x) evaluated at x or g(x)?"
+    }
+  },
+  {
     id: "cond-prob",
     label: "Conditional Probability",
     emoji: "📊",
     subject: "Math",
+    classLevel: 12,
     easy: {
       misconception: "P(A|B) is exactly the same as P(B|A).",
       hint: "Think about the probability of having a fever given you have the flu vs having the flu given you have a fever."
@@ -67,20 +87,6 @@ export const TOPICS = [
     hard: {
       misconception: "If two events are mutually exclusive, they must be independent.",
       hint: "If event A happens, can event B happen if they are mutually exclusive?"
-    }
-  },
-  {
-    id: "mag-force",
-    label: "Magnetic Force",
-    emoji: "🧲",
-    subject: "Physics",
-    easy: {
-      misconception: "A stationary charge placed in a strong magnetic field will start moving along the magnetic field lines.",
-      hint: "Look at the formula for magnetic force: F = qv × B. What happens if v = 0?"
-    },
-    hard: {
-      misconception: "Magnetic fields do work on charged particles to speed them up.",
-      hint: "What is the angle between the magnetic force and the velocity vector?"
     }
   }
 ];
