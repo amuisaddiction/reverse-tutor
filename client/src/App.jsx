@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Login from './pages/Login';
+import LandingPage from './pages/LandingPage';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Session from './pages/Session';
@@ -24,7 +24,7 @@ function App() {
     setActiveScreen('session');
   };
 
-  if (!isAuthenticated) return <Login onLogin={handleLogin} />;
+  if (!isAuthenticated) return <LandingPage onLogin={handleLogin} />;
   
   if (!examType) return <Onboarding onSelectExam={(type) => setExamType(type)} />;
 

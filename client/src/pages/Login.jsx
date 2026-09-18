@@ -43,7 +43,7 @@ const FloatingInput = ({ label, icon: Icon, type = 'text', ...props }) => {
   );
 };
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, isEmbedded = false }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showOtp, setShowOtp] = useState(false);
   
@@ -106,20 +106,25 @@ const Login = ({ onLogin }) => {
     }
   };
 
+  const wrapperClass = isEmbedded 
+    ? "w-full max-w-md mx-auto relative z-10"
+    : "min-h-screen flex items-center justify-center bg-vercel-dark font-sans text-slate-300 relative overflow-hidden";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-vercel-dark font-sans text-slate-300 relative overflow-hidden">
-      
+    <div className={wrapperClass}>
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />
+      {!isEmbedded && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />}
 
       {/* Auth Form - Centered */}
-      <div className="w-full max-w-md p-8 relative z-10">
+      <div className={`w-full max-w-md relative z-10 ${isEmbedded ? '' : 'p-8'}`}>
         
         {/* Logo */}
-        <div className="flex justify-center items-center gap-3 mb-10">
-          <Logo className="w-10 h-10" color="#ffffff" />
-          <h1 className="text-3xl font-bold text-white tracking-tight">RevTutor</h1>
-        </div>
+        {!isEmbedded && (
+          <div className="flex justify-center items-center gap-3 mb-10">
+            <Logo className="w-10 h-10" color="#ffffff" />
+            <h1 className="text-3xl font-bold text-white tracking-tight">RevTutor</h1>
+          </div>
+        )}
 
           <div className="text-center mb-8">
             <h2 className="text-3xl font-semibold text-white tracking-tight mb-2">
