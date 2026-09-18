@@ -45,37 +45,60 @@ const FloatingInput = ({ label, icon: Icon, type = 'text', ...props }) => {
 
 const Login = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [showOtp, setShowOtp] = useState(false);
   
   // Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleOtpChange = (index, value) => {
+    if (value.length > 1) value = value.slice(-1);
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    // Auto focus next
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`).focus();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-    const body = isLogin ? { email, password } : { name, email, phone, password };
-
     try {
-      const res = await fetch(`http://localhost:3001${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || 'Authentication failed');
-      
-      // Store token (in a real app, use HTTP-only cookies)
-      if (data.token) localStorage.setItem('token', data.token);
-      
-      onLogin(); // Tell App.jsx we are in
+      if (!isLogin && !showOtp) {
+        // Step 1: Signup -> Request OTP
+        const res = await fetch(`http://localhost:3001/api/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        setShowOtp(true);
+      } else {
+        // Step 2: Login OR Verify OTP
+        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/verify-otp';
+        const body = isLogin ? { email, password } : { name, email, phone, password, otp: otp.join('') };
+        
+        const res = await fetch(`http://localhost:3001${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        if (data.token) localStorage.setItem('token', data.token);
+        onLogin();
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -161,47 +184,38 @@ const Login = ({ onLogin }) => {
 
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait">
-              {!isLogin && (
+              {!isLogin && !showOtp && (
                 <motion.div
                   key="signup-fields"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                 >
-                  <FloatingInput 
-                    label="Full Name" 
-                    icon={User} 
-                    value={name} 
-                    onChange={e => setName(e.target.value)} 
-                    required={!isLogin} 
-                  />
-                  <FloatingInput 
-                    label="Phone Number" 
-                    icon={Phone} 
-                    type="tel" 
-                    value={phone} 
-                    onChange={e => setPhone(e.target.value)} 
-                  />
+                  <FloatingInput label="Full Name" icon={User} value={name} onChange={e => setName(e.target.value)} required={!isLogin} />
+                  <FloatingInput label="Phone Number" icon={Phone} type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <FloatingInput 
-              label="Email Address" 
-              icon={Mail} 
-              type="email" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-            />
-            <FloatingInput 
-              label="Password" 
-              icon={Lock} 
-              type="password" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
-            />
+            {!showOtp ? (
+              <>
+                <FloatingInput label="Email Address" icon={Mail} type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                <FloatingInput label="Password" icon={Lock} type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+              </>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
+                <p className="text-sm text-slate-400 mb-4 text-center">Enter the 6-digit code sent to your email.</p>
+                <div className="flex justify-between gap-2">
+                  {otp.map((digit, idx) => (
+                    <input
+                      key={idx} id={`otp-${idx}`} type="text" maxLength={1} value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      className="w-12 h-14 bg-vercel-dark/50 border border-vercel-border rounded-lg text-center text-xl font-bold text-white focus:border-electric-indigo focus:ring-1 focus:ring-electric-indigo focus:outline-none"
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {error && (
               <motion.p 
