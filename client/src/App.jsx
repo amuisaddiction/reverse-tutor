@@ -39,7 +39,7 @@ function App() {
   }
 
   return (
-    <div className={`flex min-h-screen ${examType === 'NEET' ? 'bg-emerald-50/30' : 'bg-slate-50'}`}>
+    <div className="flex min-h-screen bg-vercel-dark text-slate-200 font-sans selection:bg-electric-indigo selection:text-white">
       <Sidebar activeScreen={activeScreen} setActiveScreen={setActiveScreen} onLogout={handleLogout} examType={examType} />
       <div className="ml-64 flex-1">
         {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}

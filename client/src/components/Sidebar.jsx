@@ -15,7 +15,7 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
   ];
 
   return (
-    <div className="w-64 bg-slate-900 text-slate-300 h-screen flex flex-col fixed left-0 top-0 border-r border-slate-800">
+    <div className="w-64 bg-vercel-dark text-slate-300 h-screen flex flex-col fixed left-0 top-0 border-r border-vercel-border">
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
           <Logo className="w-8 h-8" color="#ffffff" />

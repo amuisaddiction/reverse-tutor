@@ -2,148 +2,124 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import TopicCard from '../components/TopicCard';
 import { TOPICS } from '../data/topics';
-import { Flame, Target, Award, ArrowUpRight, Clock, Activity } from 'lucide-react';
+import { Activity, Clock, ArrowUpRight, Zap, Target, BookOpen } from 'lucide-react';
 
 const Home = ({ onStart, examType }) => {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [difficulty, setDifficulty] = useState('easy');
   const [activeTab, setActiveTab] = useState('Physics');
 
-  const isNeet = examType === 'NEET';
-  const themeBg = isNeet ? 'bg-emerald-500' : 'bg-indigo-500';
-  const themeHover = isNeet ? 'hover:bg-emerald-400' : 'hover:bg-indigo-400';
-  const themeText = isNeet ? 'text-emerald-500' : 'text-indigo-500';
-  const themeRing = isNeet ? 'focus:ring-emerald-500' : 'focus:ring-indigo-500';
-  
-  const subjects = isNeet ? ['Physics', 'Chemistry', 'Biology'] : ['Physics', 'Chemistry', 'Math'];
+  const subjects = examType === 'NEET' ? ['Physics', 'Chemistry', 'Biology'] : ['Physics', 'Chemistry', 'Math'];
   const filteredTopics = TOPICS.filter(t => t.subject === activeTab);
 
-  // Generate mock contribution graph data
-  const contributionGrid = Array.from({ length: 54 }).map((_, i) => (
-    <div 
-      key={i} 
-      className={`w-3 h-3 rounded-sm ${Math.random() > 0.7 ? (isNeet ? 'bg-emerald-400' : 'bg-indigo-400') : Math.random() > 0.4 ? (isNeet ? 'bg-emerald-200' : 'bg-indigo-200') : 'bg-slate-100'}`}
-    />
-  ));
+  // Minimalist Vercel-style activity graph
+  const contributionGrid = Array.from({ length: 60 }).map((_, i) => {
+    const intensity = Math.random();
+    let bg = 'bg-vercel-border/30';
+    if (intensity > 0.8) bg = 'bg-electric-indigo';
+    else if (intensity > 0.5) bg = 'bg-electric-indigo/60';
+    else if (intensity > 0.3) bg = 'bg-electric-indigo/30';
+    return <div key={i} className={`w-3 h-3 rounded-sm ${bg}`} />;
+  });
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-slate-50 p-8 pb-32">
-      {/* Aurora Background Effects */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-400/20 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-      <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${isNeet ? 'bg-emerald-400/20' : 'bg-blue-400/20'} rounded-full blur-[120px] translate-x-1/2 -translate-y-1/2 pointer-events-none`} />
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <header className="mb-10 flex justify-between items-end">
+    <div className="min-h-screen bg-vercel-dark p-8 pb-32 text-slate-300 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
+        <header className="mb-12 flex justify-between items-end border-b border-vercel-border pb-6">
           <div>
-            <h1 className="text-4xl font-black text-slate-800 tracking-tight">Welcome back, Student.</h1>
-            <p className="text-slate-500 font-medium mt-2">Let's crush some {examType} concepts today.</p>
+            <h1 className="text-3xl font-semibold text-white tracking-tight">Overview</h1>
+            <p className="text-slate-400 text-sm mt-1">{examType} Preparation Dashboard</p>
           </div>
-          <button className="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-            <Activity size={18} /> View Analytics
+          <button className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-slate-200 transition-colors text-sm">
+            <Activity size={16} /> View Analytics
           </button>
         </header>
 
-        {/* Bento Box Dashboard Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+        {/* Minimalist Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           
-          {/* Main Streak Card */}
+          {/* Streak Card */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`lg:col-span-4 rounded-3xl p-8 relative overflow-hidden text-white ${isNeet ? 'bg-gradient-to-br from-emerald-500 to-teal-700' : 'bg-gradient-to-br from-indigo-500 to-blue-700'} shadow-xl`}
+            className="bg-vercel-card border border-vercel-border p-6 rounded-xl flex flex-col justify-between"
           >
-            <div className="absolute top-0 right-0 p-6 opacity-20">
-              <Flame size={120} />
-            </div>
-            <div className="relative z-10">
-              <p className="font-bold text-white/80 uppercase tracking-widest text-sm mb-1">Current Streak</p>
-              <h2 className="text-6xl font-black mb-6">12<span className="text-2xl font-bold text-white/80"> Days</span></h2>
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 inline-flex items-center gap-3 border border-white/20">
-                <ArrowUpRight size={20} className="text-white" />
-                <span className="font-medium">Top 5% of {examType} aspirants</span>
+            <div className="flex justify-between items-start mb-8">
+              <div className="p-2 bg-vercel-border/30 rounded-lg text-electric-indigo">
+                <Zap size={20} />
               </div>
+              <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Active</span>
+            </div>
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Current Streak</p>
+              <h2 className="text-4xl font-semibold text-white tracking-tight">0 <span className="text-lg text-slate-500 font-normal">Days</span></h2>
             </div>
           </motion.div>
 
           {/* Activity Graph */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-5 bg-white/60 backdrop-blur-xl border border-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between"
+            className="bg-vercel-card border border-vercel-border p-6 rounded-xl col-span-1 lg:col-span-2 flex flex-col justify-between"
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                <Target size={18} className={themeText} /> Teaching Activity
+              <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <Target size={16} className="text-electric-indigo" /> Teaching Activity
               </h3>
-              <span className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">148 Concepts</span>
+              <span className="text-xs font-mono text-slate-500">148 Concepts Mastered</span>
             </div>
-            <div className="flex flex-wrap gap-1.5 justify-center">
+            <div className="flex flex-wrap gap-1.5">
               {contributionGrid}
-            </div>
-          </motion.div>
-
-          {/* Recent Sessions */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-3 bg-white/60 backdrop-blur-xl border border-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
-          >
-            <h3 className="font-bold text-slate-700 flex items-center gap-2 mb-6">
-              <Clock size={18} className={themeText} /> Recent Sessions
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg">⚡</div>
-                <div>
-                  <p className="font-bold text-slate-800 text-sm">Newton's 3rd Law</p>
-                  <p className="text-xs text-slate-500">Mastered 2 hrs ago</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg">🔋</div>
-                <div>
-                  <p className="font-bold text-slate-800 text-sm">Ohm's Law</p>
-                  <p className="text-xs text-slate-500">Mastered yesterday</p>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
 
         {/* Study Map Section */}
-        <div className="bg-white/60 backdrop-blur-xl border border-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <h2 className="text-2xl font-black text-slate-800 mb-6">The {examType} Study Map</h2>
-          
-          <div className="flex gap-4 mb-8">
-            {subjects.map(sub => (
-              <button
-                key={sub}
-                onClick={() => { setActiveTab(sub); setSelectedTopic(null); }}
-                className={`px-6 py-2.5 rounded-full font-bold transition-all ${
-                  activeTab === sub 
-                    ? `${themeBg} text-white shadow-lg ${isNeet ? 'shadow-emerald-500/30' : 'shadow-indigo-500/30'}` 
-                    : 'bg-white text-slate-500 hover:bg-slate-100'
-                }`}
-              >
-                {sub}
-              </button>
-            ))}
+        <div className="bg-vercel-card border border-vercel-border p-8 rounded-xl">
+          <div className="flex justify-between items-center mb-6 border-b border-vercel-border pb-4">
+            <h2 className="text-xl font-semibold text-white">Curriculum Map</h2>
+            <div className="flex gap-2">
+              {subjects.map(sub => (
+                <button
+                  key={sub}
+                  onClick={() => { setActiveTab(sub); setSelectedTopic(null); }}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === sub 
+                      ? 'bg-electric-indigo text-white' 
+                      : 'text-slate-400 hover:text-white hover:bg-vercel-border/50'
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTopics.length > 0 ? filteredTopics.map(topic => (
-              <TopicCard 
-                key={topic.id} 
-                topic={topic} 
-                isSelected={selectedTopic?.id === topic.id}
+              <div 
+                key={topic.id}
                 onClick={() => setSelectedTopic(topic)}
-                examType={examType}
-              />
+                className={`p-5 rounded-lg border transition-all cursor-pointer flex justify-between items-center ${
+                  selectedTopic?.id === topic.id
+                    ? 'border-electric-indigo bg-electric-indigo/10'
+                    : 'border-vercel-border hover:border-slate-500 bg-vercel-dark/50'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl">{topic.emoji}</span>
+                  <div>
+                    <h3 className="text-white font-medium text-sm">{topic.label}</h3>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase">Class {topic.classLevel}</span>
+                  </div>
+                </div>
+                {selectedTopic?.id === topic.id && <ArrowUpRight size={16} className="text-electric-indigo" />}
+              </div>
             )) : (
-              <div className="col-span-full py-12 text-center text-slate-400 font-medium border-2 border-dashed border-slate-200 rounded-2xl">
-                Loading AI curriculum for {activeTab}...
+              <div className="col-span-full py-12 text-center text-slate-500 text-sm border border-dashed border-vercel-border rounded-lg">
+                Loading official NTA curriculum...
               </div>
             )}
           </div>
@@ -154,39 +130,39 @@ const Home = ({ onStart, examType }) => {
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-8 left-[calc(50%+8rem)] -translate-x-1/2 w-full max-w-3xl bg-white/90 backdrop-blur-2xl p-4 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.3)] border border-white flex items-center justify-between z-50"
+            className="fixed bottom-8 left-[calc(50%+8rem)] -translate-x-1/2 w-full max-w-2xl bg-vercel-dark border border-vercel-border p-4 rounded-xl shadow-2xl flex items-center justify-between z-50"
           >
             <div className="flex items-center gap-6 px-4">
-              <span className="font-bold text-slate-700">Difficulty:</span>
+              <span className="text-sm font-medium text-slate-400">Level:</span>
               <label className="flex items-center cursor-pointer gap-2">
                 <input 
                   type="radio" 
-                  className={`w-4 h-4 ${themeText} ${themeRing}`}
+                  className="w-3.5 h-3.5 accent-electric-indigo"
                   checked={difficulty === 'easy'} 
                   onChange={() => setDifficulty('easy')} 
                 />
-                <span className={difficulty === 'easy' ? 'font-bold text-slate-800' : 'text-slate-500'}>
-                  {isNeet ? 'NEET Level' : 'JEE Main'}
+                <span className={`text-sm ${difficulty === 'easy' ? 'text-white font-medium' : 'text-slate-400'}`}>
+                  {examType === 'NEET' ? 'NEET Prep' : 'JEE Main'}
                 </span>
               </label>
               <label className="flex items-center cursor-pointer gap-2">
                 <input 
                   type="radio" 
-                  className={`w-4 h-4 ${themeText} ${themeRing}`}
+                  className="w-3.5 h-3.5 accent-electric-indigo"
                   checked={difficulty === 'hard'} 
                   onChange={() => setDifficulty('hard')} 
                 />
-                <span className={difficulty === 'hard' ? 'font-bold text-slate-800' : 'text-slate-500'}>
-                  {isNeet ? 'AIIMS Level' : 'JEE Advanced'}
+                <span className={`text-sm ${difficulty === 'hard' ? 'text-white font-medium' : 'text-slate-400'}`}>
+                  {examType === 'NEET' ? 'AIIMS Level' : 'JEE Advanced'}
                 </span>
               </label>
             </div>
 
             <button 
               onClick={() => onStart(selectedTopic, difficulty)}
-              className={`px-8 py-3 ${themeBg} text-white rounded-xl font-bold ${themeHover} transition-all shadow-lg ${isNeet ? 'shadow-emerald-500/30' : 'shadow-indigo-500/30'} hover:scale-105`}
+              className="px-6 py-2 bg-white text-black rounded-md font-medium text-sm hover:bg-slate-200 transition-colors"
             >
-              Start Teaching AI →
+              Initialize AI Session
             </button>
           </motion.div>
         )}
