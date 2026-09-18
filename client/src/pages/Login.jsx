@@ -107,48 +107,19 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex bg-vercel-dark font-sans text-slate-300">
+    <div className="min-h-screen flex items-center justify-center bg-vercel-dark font-sans text-slate-300 relative overflow-hidden">
       
-      {/* Left Split - Branding (Hidden on Mobile) */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-indigo-950 via-vercel-dark to-black border-r border-vercel-border relative overflow-hidden flex-col justify-between p-12">
-        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-electric-indigo/20 blur-[120px] rounded-full pointer-events-none" />
+      {/* Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Auth Form - Centered */}
+      <div className="w-full max-w-md p-8 relative z-10">
         
-        <div className="relative z-10 flex items-center gap-3">
+        {/* Logo */}
+        <div className="flex justify-center items-center gap-3 mb-10">
           <Logo className="w-10 h-10" color="#ffffff" />
           <h1 className="text-3xl font-bold text-white tracking-tight">RevTutor</h1>
         </div>
-
-        <div className="relative z-10 max-w-lg">
-          <h2 className="text-5xl font-black text-white leading-tight tracking-tighter mb-6">
-            Teach the AI.<br />Master the Exam.
-          </h2>
-          <p className="text-slate-400 text-lg leading-relaxed mb-8">
-            The elite preparation platform for JEE and NEET aspirants. Powered by advanced AI to identify exactly where your conceptual gaps are.
-          </p>
-          <div className="flex gap-4">
-            <div className="flex -space-x-4">
-              {[1,2,3,4].map(i => (
-                <img key={i} className="w-12 h-12 rounded-full border-2 border-vercel-dark" src={`https://i.pravatar.cc/100?img=${i+10}`} alt="avatar" />
-              ))}
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-white font-bold text-sm">Join 10,000+ top rankers</span>
-              <span className="text-electric-indigo text-xs font-semibold uppercase tracking-wider">in India</span>
-            </div>
-          </div>
-        </div>
-        <div className="relative z-10 text-sm text-slate-500 font-medium">© 2026 RevTutor Inc.</div>
-      </div>
-
-      {/* Right Split - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
-        <div className="w-full max-w-md">
-          
-          {/* Mobile Logo */}
-          <div className="flex lg:hidden justify-center items-center gap-3 mb-10">
-            <Logo className="w-10 h-10" color="#ffffff" />
-            <h1 className="text-3xl font-bold text-white tracking-tight">RevTutor</h1>
-          </div>
 
           <div className="text-center mb-8">
             <h2 className="text-3xl font-semibold text-white tracking-tight mb-2">
@@ -259,7 +230,6 @@ const Login = ({ onLogin }) => {
             </svg>
             Sign in with Google
           </button>
-        </div>
       </div>
     </div>
   );
