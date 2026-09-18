@@ -1,10 +1,8 @@
-import React from 'react';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Clock, CheckCircle, ChevronRight, Play } from 'lucide-react';
 import { PAST_PAPERS } from '../data/pastPapers';
 
-const PastPapers = () => {
 const PastPapers = ({ examType }) => {
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [selectedYear, setSelectedYear] = useState('All');
