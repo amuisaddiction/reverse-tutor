@@ -10,8 +10,9 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
-    { id: 'past-papers', label: 'Past Papers (PYQ)', icon: <FileText size={20} /> },
     { id: 'study-map', label: 'Teach AI (Syllabus)', icon: <BookOpen size={20} /> },
+    { id: 'quiz', label: 'Quiz Mode', icon: <FileText size={20} /> },
+    { id: 'past-papers', label: 'Past Papers (PYQ)', icon: <FileText size={20} /> },
   ];
 
   return (

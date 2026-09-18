@@ -4,6 +4,7 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Session from './pages/Session';
 import PastPapers from './pages/PastPapers';
+import QuizMode from './pages/QuizMode';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
       <div className="ml-64 flex-1">
         {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}
         {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
+        {activeScreen === 'quiz' && <QuizMode examType={examType} />}
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
       </div>
     </div>
