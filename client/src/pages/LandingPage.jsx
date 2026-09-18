@@ -97,7 +97,7 @@ const LandingPage = ({ onLogin }) => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {filteredTopics.map((topic, i) => (
               <motion.div 
                 key={topic.id}
@@ -121,9 +121,9 @@ const LandingPage = ({ onLogin }) => {
             ))}
           </div>
           
-          {/* Fade out bottom overlay to tease user to login */}
-          <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-vercel-card to-transparent flex items-end justify-center pb-6">
-            <button onClick={scrollToLogin} className="text-electric-indigo font-bold hover:text-white transition-colors flex items-center gap-2">
+          {/* Static call to action button */}
+          <div className="flex justify-center border-t border-vercel-border pt-6">
+            <button onClick={scrollToLogin} className="bg-electric-indigo/10 border border-electric-indigo/30 px-6 py-3 rounded-full text-electric-indigo font-bold hover:bg-electric-indigo hover:text-white transition-all flex items-center gap-2">
               Sign in to unlock all chapters <ArrowUpRight size={16} />
             </button>
           </div>
