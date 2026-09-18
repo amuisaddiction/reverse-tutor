@@ -1,20 +1,36 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import chatRouter from './routes/chat.js';
-import evaluateRouter from './routes/evaluate.js';
+
+import { sequelize, connectDB } from './config/database.js';
+import authRoutes from './routes/auth.js';
+import chatRoutes from './routes/chat.js';
+import evaluateRoutes from './routes/evaluate.js';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/chat', chatRouter);
-app.use('/api/evaluate', evaluateRouter);
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/evaluate', evaluateRoutes);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Reverse Tutor MVP API is running' });
+});
+
+// Sync Database and Start Server
+connectDB().then(async () => {
+  // Sync models to DB (creates tables if they don't exist)
+  await sequelize.sync(); 
+  console.log('✅ All models were synchronized successfully.');
+  
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
 });
