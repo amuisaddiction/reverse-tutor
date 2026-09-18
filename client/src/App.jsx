@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Session from './pages/Session';
 import PastPapers from './pages/PastPapers';
 import QuizMode from './pages/QuizMode';
+import ScanQuestion from './pages/ScanQuestion';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
         {activeScreen === 'quiz' && <QuizMode examType={examType} />}
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
+        {activeScreen === 'scan-question' && <ScanQuestion />}
       </div>
     </div>
   );
