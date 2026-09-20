@@ -48,7 +48,7 @@ const Session = ({ topic, difficulty, onBack }) => {
     setLoading(true);
 
     try {
-      const chatRes = await fetch('http://localhost:3001/api/chat', {
+      const chatRes = await fetch('https://reverse-tutor.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: topic.label, misconception, messages: newMessages })
@@ -57,7 +57,7 @@ const Session = ({ topic, difficulty, onBack }) => {
       
       setMessages(prev => [...prev, { role: 'assistant', content: chatData.message }]);
 
-      const evalRes = await fetch('http://localhost:3001/api/evaluate', {
+      const evalRes = await fetch('https://reverse-tutor.onrender.com/api/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

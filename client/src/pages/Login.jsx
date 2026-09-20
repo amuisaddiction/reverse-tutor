@@ -75,7 +75,7 @@ const Login = ({ onLogin, isEmbedded = false }) => {
     try {
       if (!isLogin && !showOtp) {
         // Step 1: Signup -> Request OTP
-        const res = await fetch(`http://localhost:3001/api/auth/signup`, {
+        const res = await fetch(`https://reverse-tutor.onrender.com/api/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, phone, password })
@@ -88,7 +88,7 @@ const Login = ({ onLogin, isEmbedded = false }) => {
         const endpoint = isLogin ? '/api/auth/login' : '/api/auth/verify-otp';
         const body = isLogin ? { email, password } : { name, email, phone, password, otp: otp.join('') };
         
-        const res = await fetch(`http://localhost:3001${endpoint}`, {
+        const res = await fetch(`https://reverse-tutor.onrender.com${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
