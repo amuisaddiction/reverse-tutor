@@ -7,6 +7,7 @@ import PastPapers from './pages/PastPapers';
 import QuizMode from './pages/QuizMode';
 import ScanQuestion from './pages/ScanQuestion';
 import ExamScheduler from './pages/ExamScheduler';
+import Analytics from './pages/Analytics';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
       <Sidebar activeScreen={activeScreen} setActiveScreen={setActiveScreen} onLogout={handleLogout} examType={examType} />
       <div className="ml-64 flex-1">
         {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}
+        {activeScreen === 'analytics' && <Analytics examType={examType} />}
         {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
         {activeScreen === 'quiz' && <QuizMode examType={examType} />}
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}

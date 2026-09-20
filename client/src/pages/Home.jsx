@@ -31,7 +31,10 @@ const Home = ({ onStart, examType }) => {
             <h1 className="text-3xl font-semibold text-white tracking-tight">Overview</h1>
             <p className="text-slate-400 text-sm mt-1">{examType} Preparation Dashboard</p>
           </div>
-          <button className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-slate-200 transition-colors text-sm">
+          <button 
+            onClick={() => document.getElementById('analytics')?.click()}
+            className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-slate-200 transition-colors text-sm"
+          >
             <Activity size={16} /> View Analytics
           </button>
         </header>
