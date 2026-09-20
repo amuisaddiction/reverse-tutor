@@ -12,7 +12,9 @@ const PastPapers = ({ examType }) => {
   const years = ['All', 2023, 2022, 2021];
 
   const filteredPapers = PAST_PAPERS.filter(p => {
-    if (p.exam !== examType && p.exam !== 'All') return false;
+    const paperExam = p.exam.toLowerCase();
+    const currentExam = (examType || '').toLowerCase();
+    if (paperExam !== 'all' && !currentExam.includes(paperExam) && !paperExam.includes(currentExam)) return false;
     if (selectedSubject !== 'All' && p.subject !== selectedSubject) return false;
     if (selectedYear !== 'All' && p.year !== parseInt(selectedYear)) return false;
     return true;

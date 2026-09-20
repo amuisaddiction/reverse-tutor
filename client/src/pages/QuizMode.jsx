@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Clock, ArrowRight, Brain } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, ArrowRight, Brain, Target, ArrowUpRight } from 'lucide-react';
+import { TOPICS } from '../data/topics';
 
 const MOCK_QUIZ = [
   {
@@ -18,12 +19,28 @@ const MOCK_QUIZ = [
 ];
 
 const QuizMode = ({ examType }) => {
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [activeTab, setActiveTab] = useState('Physics');
+
   const [isStarted, setIsStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+
+  const subjects = examType === 'NEET' ? ['Physics', 'Chemistry', 'Biology'] : ['Physics', 'Chemistry', 'Math'];
+  const filteredTopics = TOPICS.filter(t => t.subject === activeTab);
+
+  const startQuizForTopic = (topic) => {
+    setSelectedTopic(topic);
+    setIsStarted(true);
+    setCurrentIdx(0);
+    setScore(0);
+    setIsFinished(false);
+    setShowExplanation(false);
+    setSelectedOpt(null);
+  };
 
   const handleSelect = (idx) => {
     if (showExplanation) return;
@@ -38,7 +55,7 @@ const QuizMode = ({ examType }) => {
 
   const nextQuestion = () => {
     if (currentIdx < MOCK_QUIZ.length - 1) {
-      setCurrentIdx(c => c + 1);
+      setCurrentIdx(i => i + 1);
       setSelectedOpt(null);
       setShowExplanation(false);
     } else {
@@ -48,17 +65,52 @@ const QuizMode = ({ examType }) => {
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen bg-vercel-dark p-8 flex items-center justify-center">
-        <div className="bg-vercel-card border border-vercel-border p-12 rounded-2xl max-w-lg w-full text-center">
-          <Brain size={48} className="text-electric-indigo mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-white mb-4">Chapter Quiz Mode</h1>
-          <p className="text-slate-400 mb-8">Test your {examType} concepts with adaptive difficulty. +4 for correct, -1 for incorrect.</p>
-          <button 
-            onClick={() => setIsStarted(true)}
-            className="w-full bg-electric-indigo hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)]"
-          >
-            Start Quiz
-          </button>
+      <div className="min-h-screen bg-vercel-dark p-8 pb-32 text-slate-300 font-sans">
+        <header className="mb-10 border-b border-vercel-border pb-6">
+          <h1 className="text-3xl font-semibold text-white tracking-tight flex items-center gap-3">
+            <Brain className="text-electric-indigo" /> Generate AI Quiz
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">Select a specific chapter to generate a dynamically adapted quiz.</p>
+        </header>
+
+        <div className="bg-vercel-card border border-vercel-border p-8 rounded-xl">
+          <div className="flex justify-between items-center mb-6 border-b border-vercel-border pb-4">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2"><Target size={20} className="text-electric-indigo"/> Chapter Selection</h2>
+            <div className="flex gap-2">
+              {subjects.map(sub => (
+                <button
+                  key={sub}
+                  onClick={() => setActiveTab(sub)}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === sub 
+                      ? 'bg-electric-indigo text-white' 
+                      : 'text-slate-400 hover:text-white hover:bg-vercel-border/50'
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTopics.map(topic => (
+              <div 
+                key={topic.id}
+                onClick={() => startQuizForTopic(topic)}
+                className="p-5 rounded-lg border border-vercel-border hover:border-electric-indigo bg-vercel-dark/50 hover:bg-electric-indigo/5 transition-all cursor-pointer flex justify-between items-center group"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl">{topic.emoji}</span>
+                  <div>
+                    <h3 className="text-white font-medium text-sm group-hover:text-electric-indigo transition-colors">{topic.label}</h3>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase">Class {topic.classLevel}</span>
+                  </div>
+                </div>
+                <ArrowRight size={16} className="text-slate-500 group-hover:text-electric-indigo transition-colors" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -66,50 +118,65 @@ const QuizMode = ({ examType }) => {
 
   if (isFinished) {
     return (
-      <div className="min-h-screen bg-vercel-dark p-8 flex items-center justify-center">
-        <div className="bg-vercel-card border border-vercel-border p-12 rounded-2xl max-w-lg w-full text-center">
-          <h1 className="text-4xl font-black text-white mb-2">Quiz Complete</h1>
-          <p className="text-slate-400 mb-8">Adaptive Analysis Generated</p>
-          <div className="text-6xl font-black text-electric-indigo mb-8">{score} <span className="text-xl text-slate-500 font-medium">/ {MOCK_QUIZ.length * 4}</span></div>
-          <button 
-            onClick={() => { setIsStarted(false); setCurrentIdx(0); setScore(0); setSelectedOpt(null); setShowExplanation(false); setIsFinished(false); }}
-            className="bg-white text-black font-bold py-3 px-8 rounded-lg hover:bg-slate-200 transition-colors"
-          >
-            Return to Dashboard
+      <div className="min-h-screen bg-vercel-dark p-8 flex items-center justify-center font-sans">
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-vercel-card border border-vercel-border p-12 rounded-2xl text-center max-w-md w-full">
+          <h2 className="text-3xl font-bold text-white mb-2">Quiz Complete</h2>
+          <p className="text-slate-400 mb-8">{selectedTopic?.label}</p>
+          <div className="text-6xl font-black text-electric-indigo mb-8">
+            {score} <span className="text-xl text-slate-500">/ {MOCK_QUIZ.length * 4}</span>
+          </div>
+          <button onClick={() => setIsStarted(false)} className="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
+            Take Another Quiz
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
-  const question = MOCK_QUIZ[currentIdx];
+  const q = MOCK_QUIZ[currentIdx];
 
   return (
-    <div className="min-h-screen bg-vercel-dark p-8 text-slate-300 font-sans">
-      <header className="max-w-3xl mx-auto flex justify-between items-center mb-12">
-        <div className="flex gap-2">
-          {MOCK_QUIZ.map((_, i) => (
-            <div key={i} className={`h-1.5 w-12 rounded-full ${i <= currentIdx ? 'bg-electric-indigo' : 'bg-vercel-border'}`} />
-          ))}
+    <div className="min-h-screen bg-vercel-dark p-8 font-sans text-slate-300 flex flex-col">
+      <header className="flex justify-between items-center mb-8 border-b border-vercel-border pb-6">
+        <div>
+          <button onClick={() => setIsStarted(false)} className="text-electric-indigo hover:text-white mb-2 text-sm font-medium">← Back to Chapters</button>
+          <h1 className="text-2xl font-bold text-white">Targeted Quiz: {selectedTopic?.label}</h1>
         </div>
-        <div className="flex items-center gap-2 text-slate-400 font-mono bg-vercel-border/30 px-3 py-1 rounded text-sm">
-          <Clock size={14} /> 00:00:00
+        <div className="flex items-center gap-6">
+          <div className="text-center">
+            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Score</p>
+            <p className="text-2xl font-mono text-white font-bold">{score}</p>
+          </div>
+          <div className="bg-vercel-card border border-vercel-border px-4 py-2 rounded-lg flex items-center gap-2">
+            <Clock size={16} className="text-electric-indigo" />
+            <span className="font-mono text-white font-medium">14:59</span>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl text-white font-medium leading-relaxed mb-10">
-          <span className="text-electric-indigo font-bold mr-4">Q{currentIdx + 1}.</span>
-          {question.q}
+      <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col justify-center pb-20">
+        <div className="mb-8 flex items-center gap-3">
+          <span className="bg-vercel-card border border-vercel-border text-electric-indigo font-mono text-sm px-3 py-1 rounded-md font-bold">
+            Q{currentIdx + 1} of {MOCK_QUIZ.length}
+          </span>
+        </div>
+        
+        <h2 className="text-2xl font-medium text-white mb-8 leading-relaxed">
+          {q.q}
         </h2>
 
-        <div className="space-y-4 mb-12">
-          {question.options.map((opt, idx) => {
-            let stateClass = "border-vercel-border hover:border-electric-indigo hover:bg-vercel-border/30";
-            if (showExplanation) {
-              if (idx === question.answer) stateClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500";
-              else if (idx === selectedOpt) stateClass = "border-red-500 bg-red-500/10 text-red-500";
-              else stateClass = "border-vercel-border opacity-50";
+        <div className="space-y-3 mb-8">
+          {q.options.map((opt, i) => {
+            const isSelected = selectedOpt === i;
+            const isCorrect = i === q.answer;
+            let btnClass = "w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between ";
+            
+            if (!showExplanation) {
+              btnClass += isSelected ? "border-electric-indigo bg-electric-indigo/10 text-white" : "border-vercel-border bg-vercel-card hover:border-slate-500 hover:bg-vercel-border/30 text-slate-300";
+            } else {
+              if (isCorrect) btnClass += "border-emerald-500 bg-emerald-500/10 text-emerald-400";
+              else if (isSelected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+              else btnClass += "border-vercel-border bg-vercel-card opacity-50";
             }
 
             return (
