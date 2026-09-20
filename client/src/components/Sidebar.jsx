@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, FileText, Settings, LogOut, Camera } from 'lucide-react';
+import { Home, BookOpen, FileText, Settings, LogOut, Camera, Calendar } from 'lucide-react';
 import Logo from './Logo';
 
 const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
@@ -14,6 +14,7 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
     { id: 'quiz', label: 'Quiz Mode', icon: <FileText size={20} /> },
     { id: 'past-papers', label: 'Past Papers (PYQ)', icon: <FileText size={20} /> },
     { id: 'scan-question', label: 'Scan Question', icon: <Camera size={20} /> },
+    { id: 'scheduler', label: 'Exam Scheduler', icon: <Calendar size={20} /> },
   ];
 
   return (
