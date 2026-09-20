@@ -148,3 +148,4 @@ const Analytics = ({ examType }) => {
 };
 
 export default Analytics;
+
