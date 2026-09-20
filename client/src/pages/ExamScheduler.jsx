@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, Bell, X, Target } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, Bell, X, Target, BookOpen } from 'lucide-react';
 
 const ExamScheduler = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -216,3 +216,4 @@ const ExamScheduler = () => {
 };
 
 export default ExamScheduler;
+
