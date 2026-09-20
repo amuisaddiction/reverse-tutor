@@ -18,7 +18,7 @@ const Session = ({ topic, difficulty, onBack }) => {
 
   const messagesEndRef = useRef(null);
   
-  const misconception = topic[difficulty].misconception;
+  const misconception = topic[difficulty]?.misconception || `I have a fundamental misunderstanding of ${topic.label}.`;
 
   useEffect(() => {
     setMessages([
