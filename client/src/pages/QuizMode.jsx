@@ -50,6 +50,20 @@ const QuizMode = ({ examType }) => {
       setScore(s => s + 4);
     } else {
       setScore(s => s - 1);
+      
+      // Save mistake to Notebook
+      const q = MOCK_QUIZ[currentIdx];
+      const mistakes = JSON.parse(localStorage.getItem('mistakes') || '[]');
+      mistakes.push({
+        topicLabel: selectedTopic?.label,
+        date: new Date().toISOString(),
+        question: q.q,
+        options: q.options,
+        answer: q.answer,
+        selected: idx,
+        explanation: q.explanation
+      });
+      localStorage.setItem('mistakes', JSON.stringify(mistakes));
     }
   };
 

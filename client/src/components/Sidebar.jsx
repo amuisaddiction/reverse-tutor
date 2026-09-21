@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, FileText, Settings, LogOut, Camera, Calendar, Activity } from 'lucide-react';
+import { Home, Calendar as CalendarIcon, Clock, BookOpen, Brain, Activity, ScanLine, FileText, ChevronRight, BookMarked, LogOut } from 'lucide-react';
 import Logo from './Logo';
 
 const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
@@ -10,12 +10,14 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
+    { id: 'study-map', label: 'Curriculum Map', icon: <BookOpen size={20} /> },
+    { id: 'session', label: 'AI Session', icon: <Brain size={20} /> },
+    { id: 'quiz', label: 'Quiz Mode', icon: <Clock size={20} /> },
+    { id: 'mistakes', label: 'Mistake Notebook', icon: <BookMarked size={20} /> },
+    { id: 'past-papers', label: 'Past Papers', icon: <FileText size={20} /> },
+    { id: 'scan-question', label: 'Doubt Scanner', icon: <ScanLine size={20} /> },
+    { id: 'scheduler', label: 'Exam Scheduler', icon: <CalendarIcon size={20} /> },
     { id: 'analytics', label: 'Progress Tracker', icon: <Activity size={20} /> },
-    { id: 'study-map', label: 'Teach AI (Syllabus)', icon: <BookOpen size={20} /> },
-    { id: 'quiz', label: 'Quiz Mode', icon: <FileText size={20} /> },
-    { id: 'past-papers', label: 'Past Papers (PYQ)', icon: <FileText size={20} /> },
-    { id: 'scan-question', label: 'Scan Question', icon: <Camera size={20} /> },
-    { id: 'scheduler', label: 'Exam Scheduler', icon: <Calendar size={20} /> },
   ];
 
   return (

@@ -8,6 +8,7 @@ import QuizMode from './pages/QuizMode';
 import ScanQuestion from './pages/ScanQuestion';
 import ExamScheduler from './pages/ExamScheduler';
 import Analytics from './pages/Analytics';
+import MistakesNotebook from './pages/MistakesNotebook';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
         {activeScreen === 'analytics' && <Analytics examType={examType} />}
         {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
         {activeScreen === 'quiz' && <QuizMode examType={examType} />}
+        {activeScreen === 'mistakes' && <MistakesNotebook />}
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
         {activeScreen === 'scan-question' && <ScanQuestion />}
         {activeScreen === 'scheduler' && <ExamScheduler />}
