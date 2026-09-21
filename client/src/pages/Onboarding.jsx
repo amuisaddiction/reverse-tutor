@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Onboarding = ({ onSelectExam }) => {
   const [step, setStep] = useState(1);
   const [profile, setProfile] = useState({ age: '', phone: '', grade: '' });
 
+  // Resume on reload
+  useEffect(() => {
+    const savedStep = localStorage.getItem('onboardingStep');
+    const savedProfile = localStorage.getItem('onboardingProfile');
+    if (savedStep) setStep(parseInt(savedStep));
+    if (savedProfile) setProfile(JSON.parse(savedProfile));
+  }, []);
+
   const nextStep = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (step === 1 && (!profile.age || !profile.phone)) return;
     if (step === 2 && !profile.grade) return;
-    setStep(s => s + 1);
+    
+    const newStep = step + 1;
+    setStep(newStep);
+    localStorage.setItem('onboardingStep', newStep);
+    localStorage.setItem('onboardingProfile', JSON.stringify(profile));
   };
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8 font-sans">
       <div className="max-w-2xl w-full">
-        
+        <div className="text-center mb-8">
+          <span className="bg-indigo-500/10 text-indigo-400 font-mono text-sm px-4 py-2 rounded-full border border-indigo-500/20">
+            Step {step} of 3
+          </span>
+        </div>
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>

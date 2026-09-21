@@ -21,6 +21,7 @@ const MOCK_QUIZ = [
 const QuizMode = ({ examType }) => {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [activeTab, setActiveTab] = useState('Physics');
+  const [difficulty, setDifficulty] = useState('Medium');
 
   const [isStarted, setIsStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -87,7 +88,7 @@ const QuizMode = ({ examType }) => {
           <p className="text-slate-400 text-sm mt-1">Select a specific chapter to generate a dynamically adapted quiz.</p>
         </header>
 
-        <div className="bg-vercel-card border border-vercel-border p-8 rounded-xl">
+        <div className="bg-vercel-card border border-vercel-border p-8 rounded-xl mb-8">
           <div className="flex justify-between items-center mb-6 border-b border-vercel-border pb-4">
             <h2 className="text-xl font-semibold text-white flex items-center gap-2"><Target size={20} className="text-electric-indigo"/> Chapter Selection</h2>
             <div className="flex gap-2">
@@ -95,7 +96,7 @@ const QuizMode = ({ examType }) => {
                 <button
                   key={sub}
                   onClick={() => setActiveTab(sub)}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-electric-indigo ${
                     activeTab === sub 
                       ? 'bg-electric-indigo text-white' 
                       : 'text-slate-400 hover:text-white hover:bg-vercel-border/50'
@@ -107,22 +108,43 @@ const QuizMode = ({ examType }) => {
             </div>
           </div>
           
+          <div className="mb-8">
+            <label className="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Select Difficulty</label>
+            <div className="flex gap-4">
+              {['Easy', 'Medium', 'Hard'].map(level => (
+                <button
+                  key={level}
+                  onClick={() => setDifficulty(level)}
+                  className={`px-6 py-2 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-electric-indigo ${
+                    difficulty === level 
+                      ? 'bg-electric-indigo/20 text-electric-indigo border border-electric-indigo/50' 
+                      : 'bg-vercel-dark border border-vercel-border text-slate-400 hover:border-slate-500'
+                  }`}
+                  aria-pressed={difficulty === level}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTopics.map(topic => (
-              <div 
+              <button 
                 key={topic.id}
                 onClick={() => startQuizForTopic(topic)}
-                className="p-5 rounded-lg border border-vercel-border hover:border-electric-indigo bg-vercel-dark/50 hover:bg-electric-indigo/5 transition-all cursor-pointer flex justify-between items-center group"
+                className="p-5 rounded-lg border border-vercel-border hover:border-electric-indigo bg-vercel-dark/50 hover:bg-electric-indigo/5 transition-all text-left flex justify-between items-center group focus:outline-none focus:ring-2 focus:ring-electric-indigo w-full"
+                aria-label={`Start ${topic.label} Quiz`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl">{topic.emoji}</span>
+                  <span className="text-2xl" aria-hidden="true">{topic.emoji}</span>
                   <div>
                     <h3 className="text-white font-medium text-sm group-hover:text-electric-indigo transition-colors">{topic.label}</h3>
                     <span className="text-[10px] font-mono text-slate-500 uppercase">Class {topic.classLevel}</span>
                   </div>
                 </div>
                 <ArrowRight size={16} className="text-slate-500 group-hover:text-electric-indigo transition-colors" />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -195,20 +217,17 @@ const QuizMode = ({ examType }) => {
 
             return (
               <button 
-                key={idx}
-                onClick={() => handleSelect(idx)}
-                disabled={showExplanation}
-                className={`w-full text-left p-5 rounded-xl border transition-all flex items-center gap-4 ${stateClass}`}
+                key={i} 
+                onClick={() => handleSelect(i)} 
+                disabled={showExplanation} 
+                className={`${btnClass} focus:outline-none focus:ring-2 focus:ring-electric-indigo`}
+                aria-label={`Option ${i + 1}: ${opt}`}
+                aria-pressed={isSelected}
+                tabIndex={showExplanation ? -1 : 0}
               >
-                <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-mono text-sm
-                  ${showExplanation && idx === question.answer ? 'border-emerald-500' : 
-                    showExplanation && idx === selectedOpt ? 'border-red-500' : 'border-slate-500'}
-                `}>
-                  {['A', 'B', 'C', 'D'][idx]}
-                </div>
                 <span className="text-lg">{opt}</span>
-                {showExplanation && idx === question.answer && <CheckCircle className="ml-auto text-emerald-500" />}
-                {showExplanation && idx === selectedOpt && idx !== question.answer && <XCircle className="ml-auto text-red-500" />}
+                {showExplanation && isCorrect && <CheckCircle className="text-emerald-500" aria-label="Correct" />}
+                {showExplanation && isSelected && !isCorrect && <XCircle className="text-red-500" aria-label="Incorrect" />}
               </button>
             );
           })}

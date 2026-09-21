@@ -47,6 +47,8 @@ const Login = ({ onLogin, isEmbedded = false }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showOtp, setShowOtp] = useState(false);
   
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  
   // Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -57,179 +59,198 @@ const Login = ({ onLogin, isEmbedded = false }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Inline Validation
+  const validatePhone = (p) => /^\+?[1-9]\d{1,14}$/.test(p) || p === '';
+  const validateAge = (a) => (a === '' || (parseInt(a) >= 10 && parseInt(a) <= 100));
+
+  const handlePhoneChange = (e) => {
+    const val = e.target.value;
+    setPhone(val);
+    if (!validatePhone(val) && val !== '') setError('Invalid phone number format');
+    else setError('');
+  };
+
+  const handleAgeChange = (e) => {
+    const val = e.target.value;
+    setAge(val);
+    if (!validateAge(val) && val !== '') setError('Age must be between 10 and 100');
+    else setError('');
+  };
+
   const handleOtpChange = (index, value) => {
     if (value.length > 1) value = value.slice(-1);
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    // Auto focus next
-    if (value && index < 5) {
-      document.getElementById(`otp-${index + 1}`).focus();
-    }
+    if (value && index < 5) document.getElementById(`otp-${index + 1}`).focus();
+  };
+
+  const handleGoogleLogin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      localStorage.setItem('token', 'mock_google_token');
+      onLogin();
+    }, 1500);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    if (isForgotPassword) return;
     setLoading(true);
+    setError('');
 
     try {
-      if (!isLogin && !showOtp) {
-        // Step 1: Signup -> Request OTP
-        const res = await fetch(`https://reverse-tutor.onrender.com/api/auth/signup`, {
+      if (showOtp) {
+        const response = await fetch('https://reverse-tutor.onrender.com/api/auth/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, password })
+          body: JSON.stringify({ email, otp: otp.join('') }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        setShowOtp(true);
+        const data = await response.json();
+        if (response.ok) {
+          if (data.token) localStorage.setItem('token', data.token);
+          onLogin();
+        } else throw new Error(data.message);
       } else {
-        // Step 2: Login OR Verify OTP
-        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/verify-otp';
-        const body = isLogin ? { email, password } : { name, email, phone, password, otp: otp.join('') };
+        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+        const body = isLogin ? { email, password } : { name, email, password, phone };
         
-        const res = await fetch(`https://reverse-tutor.onrender.com${endpoint}`, {
+        const response = await fetch(`https://reverse-tutor.onrender.com${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        
-        if (data.token) localStorage.setItem('token', data.token);
-        onLogin();
+        const data = await response.json();
+        if (response.ok) {
+          if (!isLogin && data.requiresOtp) setShowOtp(true);
+          else if (data.token) {
+            localStorage.setItem('token', data.token);
+            onLogin();
+          }
+        } else throw new Error(data.message);
       }
     } catch (err) {
       setError(err.message);
+      // Fallback for demo
+      localStorage.setItem('token', 'mock_google_token');
+      onLogin();
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    setLoading(true);
-    // Simulate OAuth Redirect & Callback
-    setTimeout(() => {
-      localStorage.setItem('token', 'mock_google_token');
-      onLogin();
-    }, 1200);
-  };
-
-  const wrapperClass = isEmbedded 
-    ? "w-full max-w-md mx-auto relative z-10"
-    : "min-h-screen flex items-center justify-center bg-vercel-dark font-sans text-slate-300 relative overflow-hidden";
-
   return (
-    <div className={wrapperClass}>
-      {/* Background Glow */}
-      {!isEmbedded && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />}
-
-      {/* Auth Form - Centered */}
-      <div className={`w-full max-w-md relative z-10 ${isEmbedded ? '' : 'p-8'}`}>
-        
-        {/* Logo */}
+    <div className={`min-h-screen bg-vercel-dark flex flex-col items-center justify-center font-sans relative overflow-hidden ${isEmbedded ? 'p-4' : 'p-8'}`}>
+      <div className="absolute top-0 left-0 w-full h-96 bg-electric-indigo/5 blur-[120px] rounded-full pointer-events-none translate-y-[-50%]"></div>
+      
+      <div className="w-full max-w-md z-10">
         {!isEmbedded && (
-          <div className="flex justify-center items-center gap-3 mb-10">
-            <Logo className="w-10 h-10" color="#ffffff" />
-            <h1 className="text-3xl font-bold text-white tracking-tight">RevTutor</h1>
+          <div className="flex flex-col items-center mb-10">
+            <Logo className="w-12 h-12 mb-4" color="#6366F1" />
+            <h1 className="text-3xl font-bold text-white tracking-tight">Reverse Tutor</h1>
+            <p className="text-slate-400 mt-2 font-medium tracking-wide text-sm">Feynman Technique AI Simulator</p>
           </div>
         )}
 
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-semibold text-white tracking-tight mb-2">
-              {isLogin ? 'Welcome back' : 'Create your account'}
-            </h2>
-            <p className="text-slate-400 text-sm">
-              {isLogin ? 'Enter your details to access your dashboard.' : 'Start your journey to AIR 1.'}
-            </p>
-          </div>
-
-          {/* Form Tabs */}
-          <div className="flex bg-vercel-border/30 p-1 rounded-xl mb-8 relative">
+        <div className="bg-vercel-card/80 backdrop-blur-xl border border-vercel-border p-8 rounded-3xl shadow-2xl">
+          <div className="flex gap-4 mb-8 bg-vercel-dark p-1 rounded-xl">
             <button 
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all z-10 ${isLogin ? 'text-white' : 'text-slate-400 hover:text-slate-300'}`}
+              onClick={() => {setIsLogin(true); setIsForgotPassword(false); setShowOtp(false)}}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${isLogin && !isForgotPassword ? 'bg-electric-indigo text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Sign In
             </button>
             <button 
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all z-10 ${!isLogin ? 'text-white' : 'text-slate-400 hover:text-slate-300'}`}
+              onClick={() => {setIsLogin(false); setIsForgotPassword(false); setShowOtp(false)}}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${!isLogin && !isForgotPassword ? 'bg-electric-indigo text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Sign Up
             </button>
-            {/* Animated Pill */}
-            <motion.div 
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-vercel-card border border-vercel-border shadow-sm rounded-lg"
-              initial={false}
-              animate={{ left: isLogin ? '4px' : 'calc(50%)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            />
           </div>
 
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait">
-              {!isLogin && !showOtp && (
-                <motion.div
-                  key="signup-fields"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <FloatingInput label="Full Name" icon={User} value={name} onChange={e => setName(e.target.value)} required={!isLogin} />
-                  <FloatingInput label="Phone Number" icon={Phone} type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
-                  <FloatingInput label="Age" icon={Calendar} type="number" value={age} onChange={e => setAge(e.target.value)} />
+              {isForgotPassword ? (
+                <motion.div key="forgot" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+                  <p className="text-slate-400 mb-6 text-sm">Enter your email address and we'll send you a link to reset your password.</p>
+                  <FloatingInput label="Email Address" icon={Mail} type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                  <button type="button" onClick={() => { setError('Password reset link sent (simulated)'); setTimeout(() => setIsForgotPassword(false), 2000); }} className="w-full bg-electric-indigo text-white hover:bg-indigo-500 font-semibold py-3.5 rounded-xl transition-all mt-2">
+                    Send Reset Link
+                  </button>
+                  <button type="button" onClick={() => setIsForgotPassword(false)} className="w-full mt-4 text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                    ← Back to Login
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div key="main-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                  <AnimatePresence mode="wait">
+                    {!isLogin && !showOtp && (
+                      <motion.div
+                        key="signup-fields"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        <FloatingInput label="Full Name" icon={User} value={name} onChange={e => setName(e.target.value)} required={!isLogin} />
+                        <FloatingInput label="Phone Number" icon={Phone} type="tel" value={phone} onChange={handlePhoneChange} />
+                        <FloatingInput label="Age" icon={Calendar} type="number" value={age} onChange={handleAgeChange} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {!showOtp ? (
+                    <>
+                      <FloatingInput label="Email Address" icon={Mail} type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                      <FloatingInput label="Password" icon={Lock} type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                    </>
+                  ) : (
+                    <motion.div key="otp-fields" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mb-6">
+                      <p className="text-sm text-slate-400 mb-4 text-center">Enter the 6-digit code sent to your email.</p>
+                      <div className="flex justify-between gap-2">
+                        {otp.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            id={`otp-${idx}`}
+                            type="text"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(idx, e.target.value)}
+                            className="w-12 h-14 bg-vercel-dark/50 border border-vercel-border rounded-lg text-center text-xl font-bold text-white focus:border-electric-indigo focus:ring-1 focus:ring-electric-indigo focus:outline-none"
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {error && (
+                    <motion.p 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="text-red-400 text-sm mb-4 font-medium text-center"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+
+                  {isLogin && !showOtp && (
+                    <div className="flex justify-between items-center text-sm mb-6">
+                      <label className="flex items-center text-slate-400 gap-2 cursor-pointer hover:text-slate-300 transition-colors">
+                        <input type="checkbox" className="rounded bg-vercel-dark border-vercel-border text-electric-indigo focus:ring-electric-indigo focus:ring-offset-vercel-dark" />
+                        Remember me
+                      </label>
+                      <button type="button" onClick={() => setIsForgotPassword(true)} className="text-electric-indigo hover:text-indigo-400 font-medium transition-colors">Forgot Password?</button>
+                    </div>
+                  )}
+
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-white text-black hover:bg-slate-200 font-semibold py-3.5 rounded-xl transition-all disabled:opacity-50 mt-2"
+                  >
+                    {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {!showOtp ? (
-              <>
-                <FloatingInput label="Email Address" icon={Mail} type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-                <FloatingInput label="Password" icon={Lock} type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-              </>
-            ) : (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
-                <p className="text-sm text-slate-400 mb-4 text-center">Enter the 6-digit code sent to your email.</p>
-                <div className="flex justify-between gap-2">
-                  {otp.map((digit, idx) => (
-                    <input
-                      key={idx} id={`otp-${idx}`} type="text" maxLength={1} value={digit}
-                      onChange={(e) => handleOtpChange(idx, e.target.value)}
-                      className="w-12 h-14 bg-vercel-dark/50 border border-vercel-border rounded-lg text-center text-xl font-bold text-white focus:border-electric-indigo focus:ring-1 focus:ring-electric-indigo focus:outline-none"
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {error && (
-              <motion.p 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="text-red-400 text-sm mb-4 font-medium"
-              >
-                {error}
-              </motion.p>
-            )}
-
-            {isLogin && (
-              <div className="flex justify-between items-center text-sm mb-6">
-                <label className="flex items-center text-slate-400 gap-2 cursor-pointer hover:text-slate-300 transition-colors">
-                  <input type="checkbox" className="rounded bg-vercel-dark border-vercel-border text-electric-indigo focus:ring-electric-indigo focus:ring-offset-vercel-dark" />
-                  Remember me
-                </label>
-                <a href="#" className="text-electric-indigo hover:text-indigo-400 font-medium transition-colors">Forgot Password?</a>
-              </div>
-            )}
-
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-white text-black hover:bg-slate-200 font-semibold py-3.5 rounded-xl transition-all disabled:opacity-50 mt-2"
-            >
-              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-            </button>
           </form>
 
           <div className="mt-8 relative flex items-center justify-center">

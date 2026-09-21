@@ -40,9 +40,37 @@ const ExamScheduler = () => {
       type: eventType
     }]);
     
-    setIsModalOpen(false);
     setEventTitle('');
-    setEventType('mock');
+    setIsModalOpen(false);
+  };
+
+  const downloadICS = (event) => {
+    const eDate = new Date(event.date);
+    // Format to YYYYMMDDTHHmmssZ
+    const formatDate = (date) => date.toISOString().replace(/-|:|\.\d+/g, '');
+    const start = formatDate(eDate);
+    const end = formatDate(new Date(eDate.getTime() + 3600000)); // +1 hour
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Reverse Tutor//EN
+BEGIN:VEVENT
+UID:${event.id}@reversetutor.com
+DTSTAMP:${formatDate(new Date())}
+DTSTART:${start}
+DTEND:${end}
+SUMMARY:${event.title}
+DESCRIPTION:${event.type === 'mock' ? 'Mock Test' : 'Revision Session'}
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const renderCalendar = () => {
@@ -84,16 +112,21 @@ const ExamScheduler = () => {
           
           <div className="space-y-1.5">
             {dayEvents.map(event => (
-              <div 
-                key={event.id} 
-                className={`text-xs px-2 py-1.5 rounded-md truncate font-medium border ${
+              <button 
+                key={event.id}
+                title="Click to export .ics"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadICS(event);
+                }}
+                className={`w-full text-left text-xs px-2 py-1.5 rounded border truncate transition-colors font-medium cursor-pointer ${
                   event.type === 'mock' 
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                    : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20' 
+                    : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20'
                 }`}
               >
                 {event.title}
-              </div>
+              </button>
             ))}
           </div>
         </div>

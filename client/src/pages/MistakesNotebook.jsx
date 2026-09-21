@@ -55,6 +55,14 @@ const MistakesNotebook = () => {
                 <span className="text-xs font-mono uppercase tracking-widest bg-vercel-dark px-3 py-1 rounded text-slate-400 border border-vercel-border">
                   {new Date(m.date).toLocaleDateString()} • {m.topicLabel}
                 </span>
+                
+                {(() => {
+                  const daysOld = Math.floor((new Date() - new Date(m.date)) / (1000 * 60 * 60 * 24));
+                  if (daysOld >= 7) return <span className="bg-rose-500/20 text-rose-400 text-xs px-2 py-1 rounded font-bold">L3 Revision Due</span>;
+                  if (daysOld >= 3) return <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded font-bold">L2 Revision Due</span>;
+                  if (daysOld >= 1) return <span className="bg-amber-500/20 text-amber-400 text-xs px-2 py-1 rounded font-bold">L1 Revision Due</span>;
+                  return <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-1 rounded font-bold">Logged Today</span>;
+                })()}
               </div>
               
               <h3 className="text-lg font-medium text-white mb-6 leading-relaxed">{m.question}</h3>

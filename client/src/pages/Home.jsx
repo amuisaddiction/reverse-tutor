@@ -101,26 +101,45 @@ const Home = ({ onStart, examType }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTopics.length > 0 ? filteredTopics.map(topic => (
-              <div 
-                key={topic.id}
-                onClick={() => setSelectedTopic(topic)}
-                className={`p-5 rounded-lg border transition-all cursor-pointer flex justify-between items-center ${
-                  selectedTopic?.id === topic.id
-                    ? 'border-electric-indigo bg-electric-indigo/10'
-                    : 'border-vercel-border hover:border-slate-500 bg-vercel-dark/50'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl">{topic.emoji}</span>
-                  <div>
-                    <h3 className="text-white font-medium text-sm">{topic.label}</h3>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase">Class {topic.classLevel}</span>
+              {filteredTopics.length > 0 ? filteredTopics.map(topic => {
+                // Generate deterministic mock progress for visual appeal
+                const progress = Math.round(((topic.id.length + topic.label.length) % 10) * 10);
+                
+                return (
+                <button 
+                  key={topic.id}
+                  onClick={() => setSelectedTopic(topic)}
+                  aria-label={`${topic.label}, Class ${topic.classLevel}, ${progress}% Completed`}
+                  aria-pressed={selectedTopic?.id === topic.id}
+                  className={`p-5 rounded-lg border transition-all text-left flex flex-col gap-3 focus:outline-none focus:ring-2 focus:ring-electric-indigo ${
+                    selectedTopic?.id === topic.id
+                      ? 'border-electric-indigo bg-electric-indigo/10'
+                      : 'border-vercel-border hover:border-slate-500 bg-vercel-dark/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-4">
+                      <span className="text-2xl" aria-hidden="true">{topic.emoji}</span>
+                      <div>
+                        <h3 className="text-white font-medium text-sm">{topic.label}</h3>
+                        <span className="text-[10px] font-mono text-slate-500 uppercase">Class {topic.classLevel}</span>
+                      </div>
+                    </div>
+                    {selectedTopic?.id === topic.id && <ArrowUpRight size={16} className="text-electric-indigo shrink-0" />}
                   </div>
-                </div>
-                {selectedTopic?.id === topic.id && <ArrowUpRight size={16} className="text-electric-indigo" />}
-              </div>
-            )) : (
+                  
+                  {/* Completion Progress Bar */}
+                  <div className="w-full mt-2">
+                    <div className="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+                      <span>Progress</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="w-full bg-vercel-dark h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-electric-indigo h-full rounded-full" style={{ width: `${progress}%` }}></div>
+                    </div>
+                  </div>
+                </button>
+              )}) : (
               <div className="col-span-full py-12 text-center text-slate-500 text-sm border border-dashed border-vercel-border rounded-lg">
                 Loading official NTA curriculum...
               </div>

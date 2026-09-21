@@ -25,9 +25,17 @@ const PastPapers = ({ examType }) => {
       <div className="min-h-screen bg-vercel-dark p-8 text-slate-300 font-sans">
         <header className="flex justify-between items-center mb-8 border-b border-vercel-border pb-6">
           <div>
-            <button onClick={() => setActivePaper(null)} className="text-electric-indigo hover:text-white mb-2 text-sm font-medium">← Back to Papers</button>
+            <button 
+              onClick={() => {
+                localStorage.setItem('pausedPaper', activePaper.id);
+                setActivePaper(null);
+              }} 
+              className="text-electric-indigo hover:text-white mb-2 text-sm font-medium"
+            >
+              ← Back to Papers
+            </button>
             <h1 className="text-2xl font-bold text-white">{activePaper.title}</h1>
-            <p className="text-slate-400 text-sm mt-1">{activePaper.subject} · {activePaper.questions.length} Questions</p>
+            <p className="text-slate-400 text-sm mt-1">{activePaper.subject} • {activePaper.questions.length} Questions</p>
           </div>
           <div className="bg-vercel-card border border-vercel-border px-6 py-3 rounded-lg flex items-center gap-3">
             <Clock size={20} className="text-electric-indigo" />
@@ -161,6 +169,26 @@ const PastPapers = ({ examType }) => {
                 </div>
               )}
             </div>
+            
+            {/* Resume Banner */}
+            {localStorage.getItem('pausedPaper') && (
+              <div className="mt-8 bg-electric-indigo/10 border border-electric-indigo/30 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                  <h4 className="text-white font-medium">Test in Progress</h4>
+                  <p className="text-sm text-slate-400">You paused a mock test. Resume to continue.</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    const paperId = localStorage.getItem('pausedPaper');
+                    const paper = PAST_PAPERS.find(p => p.id === parseInt(paperId));
+                    if (paper) setActivePaper(paper);
+                  }} 
+                  className="bg-electric-indigo text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-indigo-500 transition-colors"
+                >
+                  Resume Test
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
