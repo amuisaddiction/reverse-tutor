@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Calendar } from 'lucide-react';
 import Logo from '../components/Logo';
 
 const FloatingInput = ({ label, icon: Icon, type = 'text', ...props }) => {
@@ -52,6 +52,7 @@ const Login = ({ onLogin, isEmbedded = false }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [age, setAge] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -178,6 +179,7 @@ const Login = ({ onLogin, isEmbedded = false }) => {
                 >
                   <FloatingInput label="Full Name" icon={User} value={name} onChange={e => setName(e.target.value)} required={!isLogin} />
                   <FloatingInput label="Phone Number" icon={Phone} type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
+                  <FloatingInput label="Age" icon={Calendar} type="number" value={age} onChange={e => setAge(e.target.value)} />
                 </motion.div>
               )}
             </AnimatePresence>
