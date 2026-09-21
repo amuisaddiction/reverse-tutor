@@ -4,8 +4,11 @@ import { Camera, UploadCloud, X, Zap, ArrowRight, Brain } from 'lucide-react';
 
 const ScanQuestion = () => {
   const [image, setImage] = useState(null);
+  const [base64Data, setBase64Data] = useState(null);
+  const [mimeType, setMimeType] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [solution, setSolution] = useState(null);
+  const [error, setError] = useState('');
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -13,32 +16,44 @@ const ScanQuestion = () => {
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setImage(url);
+      setMimeType(file.type);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const b64 = reader.result.split(',')[1];
+        setBase64Data(b64);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const scanImage = () => {
+  const scanImage = async () => {
+    if (!base64Data) return;
     setIsScanning(true);
-    // Simulate AI Vision API call
-    setTimeout(() => {
-      setIsScanning(false);
-      setSolution({
-        identifiedTopic: "Rotational Mechanics (Physics)",
-        steps: [
-          "1. Identify the given values: Mass (m), Velocity (v), Angle (θ = 45°).",
-          "2. Understand that at maximum height, the vertical velocity is zero. Only the horizontal component remains: v_x = v cos(45°).",
-          "3. The maximum height (H) formula for a projectile is H = (v² sin²θ) / 2g.",
-          "4. Angular momentum (L) about the point of projection is given by L = m * v_x * H.",
-          "5. Substitute the values: L = m * (v/√2) * (v²/(4g)) = mv³ / (4√2 g)."
-        ],
-        finalAnswer: "mv³ / (4√2 g)",
-        formulasUsed: ["v_x = v cosθ", "H = (v² sin²θ) / 2g", "L = m * v_perp * r"]
+    setError('');
+    
+    try {
+      const res = await fetch('https://reverse-tutor.onrender.com/api/doubt/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64Data, mimeType })
       });
-    }, 2500);
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to scan image');
+      setSolution(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const reset = () => {
     setImage(null);
+    setBase64Data(null);
     setSolution(null);
+    setError('');
   };
 
   return (
@@ -93,6 +108,12 @@ const ScanQuestion = () => {
                     <p className="text-slate-400 text-sm mt-2">Powered by Gemini 1.5 Pro</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm font-medium mb-4">
+                {error}
               </div>
             )}
 
