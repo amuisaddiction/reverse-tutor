@@ -272,6 +272,7 @@ const Login = ({ onLogin, isEmbedded = false }) => {
             </svg>
             Sign in with Google
           </button>
+        </div>
       </div>
     </div>
   );
