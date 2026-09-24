@@ -24,8 +24,7 @@ app.use('/api/evaluate', evaluateRouter);
 app.use('/api/doubt', doubtRoutes);
 
 // Connect to MongoDB
-const mongoURI = process.env.MONGO_URI || 'mongodb+srv://srajanshetty987_db_user:2svnnPEJVnB4FJxN@cluster0.n49niub.mongodb.net/?appName=Cluster0';
-mongoose.connect(mongoURI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
