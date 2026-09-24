@@ -14,7 +14,7 @@ const Home = ({ onStart, examType }) => {
 
   // Minimalist Vercel-style activity graph
   const contributionGrid = Array.from({ length: 60 }).map((_, i) => {
-    const intensity = Math.random();
+    const intensity = i === 59 ? 0.4 : 0;
     let bg = 'bg-vercel-border/30';
     if (intensity > 0.8) bg = 'bg-electric-indigo';
     else if (intensity > 0.5) bg = 'bg-electric-indigo/60';
@@ -71,7 +71,7 @@ const Home = ({ onStart, examType }) => {
               <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
                 <Target size={16} className="text-electric-indigo" /> Teaching Activity
               </h3>
-              <span className="text-xs font-mono text-slate-500">148 Concepts Mastered</span>
+              <span className="text-xs font-mono text-slate-500">0 Concepts Mastered</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {contributionGrid}

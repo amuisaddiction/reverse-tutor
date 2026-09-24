@@ -35,6 +35,10 @@ function App() {
     setExamType(null);
   };
 
+  const handleSwitchTarget = () => {
+    setExamType(null);
+  };
+
   const handleSelectExam = (type) => {
     setExamType(type);
     localStorage.setItem('examType', type);
@@ -91,7 +95,7 @@ function App() {
             <X size={24} />
           </button>
         )}
-        <Sidebar activeScreen={activeScreen} setActiveScreen={(s) => { setActiveScreen(s); setIsSidebarOpen(false); }} onLogout={handleLogout} examType={examType} />
+        <Sidebar activeScreen={activeScreen} setActiveScreen={(s) => { setActiveScreen(s); setIsSidebarOpen(false); }} onLogout={handleLogout} onSwitchTarget={handleSwitchTarget} examType={examType} />
       </div>
 
       <div className="md:ml-64 flex-1 pt-16 md:pt-0 w-full">
