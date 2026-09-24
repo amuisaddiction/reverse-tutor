@@ -10,16 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",
-<<<<<<< HEAD
     "@google/generative-ai": "^0.24.1",
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^16.6.1",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.3",
-    "sequelize": "^6.37.8",
-    "sqlite3": "^6.0.1"
-=======
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -28,6 +19,5 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",
     "nodemailer": "^10.0.10"
->>>>>>> pr-1
   }
 }
