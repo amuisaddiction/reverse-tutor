@@ -18,7 +18,7 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    user = new User({ email, password: hashedPassword, otp, isVerified: false });
+    user = new User({ email, password: hashedPassword, otp, isVerified: true });
     await user.save();
 
     // Send OTP via Nodemailer
@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (!user.isVerified) return res.status(400).json({ message: "Please verify your email first" });
+    // if (!user.isVerified) return res.status(400).json({ message: "Please verify your email first" });
 
     const token = jwt.sign({ id: user._id }, (process.env.JWT_SECRET || 'hackathon_secret_key'), { expiresIn: '7d' });
     res.status(200).json({ token });
