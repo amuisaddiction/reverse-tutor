@@ -51,7 +51,7 @@ router.post('/verify', async (req, res) => {
     user.otp = null;
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id }, (process.env.JWT_SECRET || 'hackathon_secret_key'), { expiresIn: '7d' });
     res.status(200).json({ token, message: "Verified successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
 
     if (!user.isVerified) return res.status(400).json({ message: "Please verify your email first" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id }, (process.env.JWT_SECRET || 'hackathon_secret_key'), { expiresIn: '7d' });
     res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -94,7 +94,7 @@ router.post('/google', async (req, res) => {
       await user.save();
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id }, (process.env.JWT_SECRET || 'hackathon_secret_key'), { expiresIn: '7d' });
     res.status(200).json({ token });
   } catch (error) {
     res.status(400).json({ error: "Invalid Google Token" });
