@@ -9,6 +9,8 @@ import ScanQuestion from './pages/ScanQuestion';
 import ExamScheduler from './pages/ExamScheduler';
 import Analytics from './pages/Analytics';
 import MistakesNotebook from './pages/MistakesNotebook';
+import FormulaHub from './pages/FormulaHub';
+import FormulaQuiz from './pages/FormulaQuiz';
 import Sidebar from './components/Sidebar';
 import { Menu, X } from 'lucide-react';
 
@@ -103,6 +105,8 @@ function App() {
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
         {activeScreen === 'scan-question' && <ScanQuestion />}
         {activeScreen === 'scheduler' && <ExamScheduler />}
+        {activeScreen === 'formulas' && <FormulaHub onQuizStart={() => setActiveScreen('formula-quiz')} />}
+        {activeScreen === 'formula-quiz' && <FormulaQuiz onBack={() => setActiveScreen('formulas')} />}
       </div>
     </div>
   );

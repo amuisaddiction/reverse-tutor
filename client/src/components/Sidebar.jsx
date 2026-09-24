@@ -11,6 +11,7 @@ const Sidebar = ({ activeScreen, setActiveScreen, onLogout, examType }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
     { id: 'study-map', label: 'Curriculum Map', icon: <BookOpen size={20} /> },
+    { id: 'formulas', label: 'Formula Hub', icon: <BookMarked size={20} /> },
     { id: 'session', label: 'AI Session', icon: <Brain size={20} /> },
     { id: 'quiz', label: 'Quiz Mode', icon: <Clock size={20} /> },
     { id: 'mistakes', label: 'Mistake Notebook', icon: <BookMarked size={20} /> },
