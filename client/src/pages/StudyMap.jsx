@@ -134,3 +134,4 @@ const StudyMap = ({ onStart }) => {
 };
 
 export default StudyMap;
+
