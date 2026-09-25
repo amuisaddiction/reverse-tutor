@@ -16,9 +16,29 @@ const StudyMap = ({ onStart }) => {
     try {
       const res = await fetch('https://reverse-tutor.onrender.com/api/graph');
       const data = await res.json();
-      setGraphData(data);
+      if (data && data.nodes && data.nodes.length > 0) {
+        setGraphData(data);
+      } else {
+        throw new Error("Empty graph or MongoDB missing");
+      }
     } catch (error) {
       console.error('Failed to fetch graph data:', error);
+      // Fallback for Hackathon Demo to prevent empty screen
+      setGraphData({
+        nodes: [
+          { id: "kinematics", label: "Kinematics", masteryScore: 60, type: "root" },
+          { id: "projectile_motion", label: "Projectile Motion", masteryScore: 40, type: "root" },
+          { id: "vector_resolution", label: "Vector Resolution", masteryScore: 30, type: "prerequisite" },
+          { id: "relative_velocity", label: "Relative Velocity", masteryScore: 50, type: "prerequisite" },
+          { id: "newtons_laws", label: "Newton's Laws", masteryScore: 70, type: "root" }
+        ],
+        links: [
+          { source: "kinematics", target: "projectile_motion" },
+          { source: "vector_resolution", target: "projectile_motion" },
+          { source: "relative_velocity", target: "kinematics" },
+          { source: "newtons_laws", target: "kinematics" }
+        ]
+      });
     } finally {
       setLoading(false);
     }
@@ -26,8 +46,10 @@ const StudyMap = ({ onStart }) => {
 
   const handleNodeClick = (node) => {
     // Zoom to node
-    graphRef.current.centerAt(node.x, node.y, 1000);
-    graphRef.current.zoom(2, 2000);
+    if (graphRef.current) {
+      graphRef.current.centerAt(node.x, node.y, 1000);
+      graphRef.current.zoom(2, 2000);
+    }
   };
 
   // Node glowing logic based on mastery score
@@ -119,7 +141,7 @@ const StudyMap = ({ onStart }) => {
               
               <div className="pt-4 mt-4 border-t border-vercel-border">
                 <button 
-                  onClick={() => onStart({ label: 'Vector Resolution', emoji: '📐' }, 'Hard')} // Mock action
+                  onClick={() => onStart({ label: 'Vector Resolution', emoji: '🎯' }, 'Hard')} // Mock action
                   className="w-full bg-electric-indigo text-white font-medium py-3 rounded-lg hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
                 >
                   Target Weakest Node <ArrowRight size={16} />
@@ -134,4 +156,3 @@ const StudyMap = ({ onStart }) => {
 };
 
 export default StudyMap;
-
