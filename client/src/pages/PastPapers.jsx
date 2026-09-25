@@ -21,9 +21,11 @@ const PastPapers = ({ examType }) => {
     return true;
   });
 
-  const startTest = (paper) => {
+  const startTest = async (paper) => {
     setActivePaper(paper);
     const duration = examType === 'NEET' ? 3 * 3600 + 20 * 60 : 3 * 3600;
+    
+    // Check if resuming
     const existingEnd = localStorage.getItem('secure_session_end');
     const existingPaper = localStorage.getItem('pausedPaper');
 
@@ -31,10 +33,27 @@ const PastPapers = ({ examType }) => {
        const remaining = Math.floor((parseInt(existingEnd) - Date.now()) / 1000);
        setTimeLeft(remaining > 0 ? remaining : 0);
     } else {
-       const endTime = Date.now() + duration * 1000;
-       localStorage.setItem('secure_session_end', endTime.toString());
-       localStorage.setItem('pausedPaper', paper.id.toString());
-       setTimeLeft(duration);
+       // Request secure HttpOnly cookie signature from server
+       try {
+         const res = await fetch('https://reverse-tutor.onrender.com/api/exam/start', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ durationInSeconds: duration })
+         });
+         const data = await res.json();
+         if (data.success) {
+           localStorage.setItem('secure_session_end', data.endTime.toString());
+           localStorage.setItem('pausedPaper', paper.id.toString());
+           setTimeLeft(duration);
+         }
+       } catch (err) {
+         console.error('Failed to sign secure session:', err);
+         // Fallback
+         const endTime = Date.now() + duration * 1000;
+         localStorage.setItem('secure_session_end', endTime.toString());
+         localStorage.setItem('pausedPaper', paper.id.toString());
+         setTimeLeft(duration);
+       }
     }
   };
 
