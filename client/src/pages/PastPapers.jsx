@@ -22,6 +22,14 @@ const PastPapers = ({ examType }) => {
   });
 
   const startTest = async (paper) => {
+    // Add dummy questions to prevent crash if data is missing
+    if (!paper.questions) {
+      paper.questions = [
+        { q: "What is the capital of France?", options: ["Paris", "London", "Berlin", "Madrid"], answer: 0 },
+        { q: "Solve for x: 2x = 10", options: ["2", "5", "10", "20"], answer: 1 },
+        { q: "What is the chemical symbol for Water?", options: ["HO2", "CO2", "H2O", "O2"], answer: 2 },
+      ];
+    }
     setActivePaper(paper);
     const duration = examType === 'NEET' ? 3 * 3600 + 20 * 60 : 3 * 3600;
     
