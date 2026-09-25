@@ -7,8 +7,6 @@ import authRouter from './routes/auth.js';
 import chatRouter from './routes/chat.js';
 import evaluateRouter from './routes/evaluate.js';
 import doubtRoutes from './routes/doubt.js';
-import graphRouter from './routes/graph.js';
-import debateRouter from './routes/debate.js';
 
 import cookieParser from 'cookie-parser';
 
@@ -30,8 +28,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/evaluate', evaluateRouter);
 app.use('/api/doubt', doubtRoutes);
-app.use('/api/graph', graphRouter);
-app.use('/api/debate', debateRouter);
 
 // Priority 3: Secure Session Cookie Map
 app.post('/api/exam/start', (req, res) => {

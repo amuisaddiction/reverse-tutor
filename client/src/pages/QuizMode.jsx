@@ -65,6 +65,16 @@ const QuizMode = ({ examType }) => {
         explanation: q.explanation
       });
       localStorage.setItem('mistakes', JSON.stringify(mistakes));
+
+      // Priority 2: Hook up Misconception Graph
+      fetch('https://reverse-tutor.onrender.com/api/graph/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          surfaceTopic: selectedTopic?.label || 'Physics Concept',
+          mistakeDescription: `Failed MCQ: ${q.q}. Chose ${q.options[idx]} instead of ${q.options[q.answer]}.`
+        })
+      }).catch(err => console.error('Graph update failed', err));
     }
   };
 
