@@ -262,3 +262,4 @@ const PastPapers = ({ examType }) => {
 };
 
 export default PastPapers;
+
