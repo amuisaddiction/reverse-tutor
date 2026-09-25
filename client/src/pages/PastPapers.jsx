@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Clock, CheckCircle, ChevronRight, Play } from 'lucide-react';
 import { PAST_PAPERS } from '../data/pastPapers';
@@ -6,7 +6,8 @@ import { PAST_PAPERS } from '../data/pastPapers';
 const PastPapers = ({ examType }) => {
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [selectedYear, setSelectedYear] = useState('All');
-  const [activePaper, setActivePaper] = useState(null); // When attempting a paper
+  const [activePaper, setActivePaper] = useState(null); 
+  const [timeLeft, setTimeLeft] = useState(3 * 3600); 
 
   const subjects = ['All', 'Physics', 'Chemistry', examType === 'NEET' ? 'Biology' : 'Math'];
   const years = ['All', 2023, 2022, 2021];
@@ -20,6 +21,50 @@ const PastPapers = ({ examType }) => {
     return true;
   });
 
+  const startTest = (paper) => {
+    setActivePaper(paper);
+    const duration = examType === 'NEET' ? 3 * 3600 + 20 * 60 : 3 * 3600;
+    const existingEnd = localStorage.getItem('secure_session_end');
+    const existingPaper = localStorage.getItem('pausedPaper');
+
+    if (existingEnd && existingPaper === paper.id.toString()) {
+       const remaining = Math.floor((parseInt(existingEnd) - Date.now()) / 1000);
+       setTimeLeft(remaining > 0 ? remaining : 0);
+    } else {
+       const endTime = Date.now() + duration * 1000;
+       localStorage.setItem('secure_session_end', endTime.toString());
+       localStorage.setItem('pausedPaper', paper.id.toString());
+       setTimeLeft(duration);
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+    if (activePaper) {
+      interval = setInterval(() => {
+        const storedEnd = parseInt(localStorage.getItem('secure_session_end'));
+        if (storedEnd) {
+          const remaining = Math.floor((storedEnd - Date.now()) / 1000);
+          if (remaining <= 0) {
+             clearInterval(interval);
+             setTimeLeft(0);
+          } else {
+             setTimeLeft(remaining);
+          }
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [activePaper]);
+
+  const formatTime = (seconds) => {
+    if (seconds <= 0) return '00:00:00';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   if (activePaper) {
     return (
       <div className="min-h-screen bg-vercel-dark p-8 text-slate-300 font-sans">
@@ -27,7 +72,6 @@ const PastPapers = ({ examType }) => {
           <div>
             <button 
               onClick={() => {
-                localStorage.setItem('pausedPaper', activePaper.id);
                 setActivePaper(null);
               }} 
               className="text-electric-indigo hover:text-white mb-2 text-sm font-medium"
@@ -38,8 +82,10 @@ const PastPapers = ({ examType }) => {
             <p className="text-slate-400 text-sm mt-1">{activePaper.subject} • {activePaper.questions.length} Questions</p>
           </div>
           <div className="bg-vercel-card border border-vercel-border px-6 py-3 rounded-lg flex items-center gap-3">
-            <Clock size={20} className="text-electric-indigo" />
-            <span className="font-mono text-xl text-white font-bold tracking-widest">03:00:00</span>
+            <Clock size={20} className={timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-electric-indigo'} />
+            <span className={`font-mono text-xl font-bold tracking-widest ${timeLeft < 300 ? 'text-red-500' : 'text-white'}`}>
+              {formatTime(timeLeft)}
+            </span>
           </div>
         </header>
 
@@ -65,7 +111,7 @@ const PastPapers = ({ examType }) => {
         </div>
         
         <div className="fixed bottom-0 left-64 right-0 bg-vercel-dark border-t border-vercel-border p-6 flex justify-end z-50">
-           <button className="bg-electric-indigo text-white px-8 py-3 rounded-md font-medium shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-400 transition-colors">
+           <button onClick={() => { setActivePaper(null); localStorage.removeItem('secure_session_end'); localStorage.removeItem('pausedPaper'); }} className="bg-electric-indigo text-white px-8 py-3 rounded-md font-medium shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-400 transition-colors">
              Submit Paper
            </button>
         </div>
@@ -141,7 +187,7 @@ const PastPapers = ({ examType }) => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="bg-vercel-card border border-vercel-border p-6 rounded-xl hover:border-slate-500 transition-colors group cursor-pointer"
-                    onClick={() => setActivePaper(paper)}
+                    onClick={() => startTest(paper)}
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -171,7 +217,7 @@ const PastPapers = ({ examType }) => {
             </div>
             
             {/* Resume Banner */}
-            {localStorage.getItem('pausedPaper') && (
+            {localStorage.getItem('pausedPaper') && localStorage.getItem('secure_session_end') && parseInt(localStorage.getItem('secure_session_end')) > Date.now() && (
               <div className="mt-8 bg-electric-indigo/10 border border-electric-indigo/30 p-4 rounded-xl flex items-center justify-between">
                 <div>
                   <h4 className="text-white font-medium">Test in Progress</h4>
@@ -181,7 +227,7 @@ const PastPapers = ({ examType }) => {
                   onClick={() => {
                     const paperId = localStorage.getItem('pausedPaper');
                     const paper = PAST_PAPERS.find(p => p.id === parseInt(paperId));
-                    if (paper) setActivePaper(paper);
+                    if (paper) startTest(paper);
                   }} 
                   className="bg-electric-indigo text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-indigo-500 transition-colors"
                 >

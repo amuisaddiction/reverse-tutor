@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import LandingPage from './pages/LandingPage';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
@@ -19,6 +19,26 @@ function App() {
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sessionConfig, setSessionConfig] = useState(null);
+  const [isWakingServer, setIsWakingServer] = useState(false);
+
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      let timeoutId;
+      const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+      if (url.includes('onrender.com') || url.includes('/api/')) {
+         timeoutId = setTimeout(() => setIsWakingServer(true), 2000);
+      }
+      try {
+        const response = await originalFetch(...args);
+        return response;
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+        setIsWakingServer(false);
+      }
+    };
+    return () => { window.fetch = originalFetch; };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -46,67 +66,77 @@ function App() {
     setActiveScreen('session');
   };
 
-  if (!isAuthenticated) return <LandingPage onLogin={handleLogin} />;
+  const LoadingOverlay = () => isWakingServer ? <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center p-8 text-center"><div className="w-16 h-16 border-4 border-electric-indigo border-t-transparent rounded-full animate-spin mb-6"></div><h2 className="text-2xl font-bold text-white mb-2">🔄 Waking up the secure server layer...</h2><p className="text-slate-400 max-w-md">The initial spin-up can take up to 45 seconds on the free tier. Please hold on!</p></div> : null;
+  if (!isAuthenticated) return <><LoadingOverlay /><LandingPage onLogin={handleLogin} /></>;
   
-  if (!examType) {
+  if (!examType) { 
     return (
-      <div className="min-h-screen bg-vercel-dark flex flex-col items-center justify-center font-sans p-8 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="relative z-10 w-full max-w-4xl">
-          <Onboarding onSelectExam={handleSelectExam} />
+      <>
+        <LoadingOverlay />
+        <div className="min-h-screen bg-vercel-dark flex flex-col items-center justify-center font-sans p-8 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-electric-indigo/10 blur-[120px] rounded-full pointer-events-none" />
+          <div className="relative z-10 w-full max-w-4xl">
+            <Onboarding onSelectExam={handleSelectExam} />
+          </div>
         </div>
-      </div>
-    );
+      </>
+    ); 
   }
 
   if (activeScreen === 'session') {
     return (
-      <Session 
-        topic={sessionConfig?.topic} 
-        difficulty={sessionConfig?.difficulty} 
-        examType={examType}
-        onBack={() => setActiveScreen('dashboard')} 
-      />
+      <>
+        <LoadingOverlay />
+        <Session 
+          topic={sessionConfig?.topic} 
+          difficulty={sessionConfig?.difficulty} 
+          examType={examType}
+          onBack={() => setActiveScreen('dashboard')} 
+        />
+      </>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-vercel-dark text-slate-200 font-sans selection:bg-electric-indigo selection:text-white overflow-x-hidden">
-      {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-vercel-dark border-b border-vercel-border z-40 flex items-center px-4">
-        <button onClick={() => setIsSidebarOpen(true)} className="text-white focus:outline-none focus:ring-2 focus:ring-electric-indigo rounded">
-          <Menu size={24} />
-        </button>
-        <span className="ml-4 font-bold text-white text-lg">Reverse Tutor</span>
-      </div>
-
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-50" onClick={() => setIsSidebarOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-vercel-dark border-r border-vercel-border z-50 transform transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {isSidebarOpen && (
-          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden absolute top-4 right-4 text-slate-400 hover:text-white">
-            <X size={24} />
+    <>
+      <LoadingOverlay />
+      <div className="flex min-h-screen bg-vercel-dark text-slate-200 font-sans selection:bg-electric-indigo selection:text-white overflow-x-hidden">
+        {/* Mobile Header */}
+        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-vercel-dark border-b border-vercel-border z-40 flex items-center px-4">
+          <button onClick={() => setIsSidebarOpen(true)} className="text-white focus:outline-none focus:ring-2 focus:ring-electric-indigo rounded">
+            <Menu size={24} />
           </button>
-        )}
-        <Sidebar activeScreen={activeScreen} setActiveScreen={(s) => { setActiveScreen(s); setIsSidebarOpen(false); }} onLogout={handleLogout} examType={examType} />
-      </div>
+          <span className="ml-4 font-bold text-white text-lg">Reverse Tutor</span>
+        </div>
 
-      <div className="md:ml-64 flex-1 pt-16 md:pt-0 w-full">
-        {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}
-        {activeScreen === 'analytics' && <Analytics examType={examType} />}
-        {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
-        {activeScreen === 'quiz' && <QuizMode examType={examType} />}
-        {activeScreen === 'mistakes' && <MistakesNotebook />}
-        {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="md:hidden fixed inset-0 bg-black/50 z-50" onClick={() => setIsSidebarOpen(false)} />
+        )}
+
+        {/* Sidebar */}
+        <div className={`fixed top-0 left-0 h-full w-64 bg-vercel-dark border-r border-vercel-border z-50 transform transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          {isSidebarOpen && (
+            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X size={24} />
+            </button>
+          )}
+          <Sidebar activeScreen={activeScreen} setActiveScreen={(s) => { setActiveScreen(s); setIsSidebarOpen(false); }} onLogout={handleLogout} examType={examType} />
+        </div>
+
+        <div className="md:ml-64 flex-1 pt-16 md:pt-0 w-full">
+          {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}
+          {activeScreen === 'analytics' && <Analytics examType={examType} />}
+          {activeScreen === 'study-map' && <Home onStart={startSession} examType={examType} />}
+          {activeScreen === 'quiz' && <QuizMode examType={examType} />}
+          {activeScreen === 'mistakes' && <MistakesNotebook />}
+          {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
           {activeScreen === 'debate' && <DebateArena examType={examType} />}
-        {activeScreen === 'scan-question' && <ScanQuestion />}
-        {activeScreen === 'scheduler' && <ExamScheduler />}
+          {activeScreen === 'scan-question' && <ScanQuestion />}
+          {activeScreen === 'scheduler' && <ExamScheduler />}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
