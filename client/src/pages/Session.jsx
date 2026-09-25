@@ -15,8 +15,17 @@ const Session = ({ topic, difficulty, onBack }) => {
   const [clarityScores, setClarityScores] = useState([]);
   const [analogyUsed, setAnalogyUsed] = useState(false);
   const [gapFound, setGapFound] = useState(false);
+  
+  // Priority 3: Speech API fallback
+  const [speechSupported, setSpeechSupported] = useState(true);
 
   const messagesEndRef = useRef(null);
+  
+  useEffect(() => {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      setSpeechSupported(false);
+    }
+  }, []);
   
   const misconception = topic[difficulty]?.misconception || `I have a fundamental misunderstanding of ${topic.label}.`;
 
@@ -175,3 +184,5 @@ const Session = ({ topic, difficulty, onBack }) => {
 };
 
 export default Session;
+
+

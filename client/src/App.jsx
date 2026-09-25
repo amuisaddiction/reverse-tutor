@@ -70,8 +70,8 @@ function App() {
   const LoadingOverlay = () => isWakingServer ? (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center p-8 text-center">
       <div className="w-16 h-16 border-4 border-electric-indigo border-t-transparent rounded-full animate-spin mb-6"></div>
-      <h2 className="text-2xl font-bold text-white mb-2">🔄 Waking up the secure server layer...</h2>
-      <p className="text-slate-400 max-w-md">The initial spin-up can take up to 45 seconds on the free tier. Please hold on!</p>
+      <h2 className="text-2xl font-bold text-white mb-2">🔄 Waking up the cloud server workspace...</h2>
+      <p className="text-slate-400 max-w-md">This initial connection can take up to 45 seconds on free-tier nodes. Please hold on!</p>
     </div>
   ) : null;
 
@@ -156,3 +156,4 @@ function App() {
 }
 
 export default App;
+
