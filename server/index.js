@@ -7,6 +7,7 @@ import authRouter from './routes/auth.js';
 import chatRouter from './routes/chat.js';
 import evaluateRouter from './routes/evaluate.js';
 import doubtRoutes from './routes/doubt.js';
+import debateRoutes from './routes/debate.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/evaluate', evaluateRouter);
 app.use('/api/doubt', doubtRoutes);
+app.use('/api/debate', debateRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)

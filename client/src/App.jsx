@@ -4,6 +4,7 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Session from './pages/Session';
 import PastPapers from './pages/PastPapers';
+import DebateArena from './pages/DebateArena';
 import QuizMode from './pages/QuizMode';
 import ScanQuestion from './pages/ScanQuestion';
 import ExamScheduler from './pages/ExamScheduler';
@@ -101,6 +102,7 @@ function App() {
         {activeScreen === 'quiz' && <QuizMode examType={examType} />}
         {activeScreen === 'mistakes' && <MistakesNotebook />}
         {activeScreen === 'past-papers' && <PastPapers examType={examType} onStart={startSession} />}
+          {activeScreen === 'debate' && <DebateArena examType={examType} />}
         {activeScreen === 'scan-question' && <ScanQuestion />}
         {activeScreen === 'scheduler' && <ExamScheduler />}
       </div>
