@@ -258,3 +258,4 @@ const QuizMode = ({ examType }) => {
 
 export default QuizMode;
 
+
