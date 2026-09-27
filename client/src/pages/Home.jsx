@@ -4,7 +4,7 @@ import TopicCard from '../components/TopicCard';
 import { TOPICS } from '../data/topics';
 import { Activity, Clock, ArrowUpRight, Zap, Target, BookOpen } from 'lucide-react';
 
-const Home = ({ onStart, examType }) => {
+const Home = ({ onStart, examType, onNavigate }) => {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [difficulty, setDifficulty] = useState('easy');
   const [activeTab, setActiveTab] = useState('Physics');
@@ -194,3 +194,5 @@ const Home = ({ onStart, examType }) => {
 };
 
 export default Home;
+
+

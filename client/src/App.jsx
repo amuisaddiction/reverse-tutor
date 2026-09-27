@@ -140,7 +140,7 @@ function App() {
         </div>
 
         <div className="md:ml-64 flex-1 pt-16 md:pt-0 w-full">
-          {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} />}
+          {activeScreen === 'dashboard' && <Home onStart={startSession} examType={examType} onNavigate={setActiveScreen} />}
           {activeScreen === 'analytics' && <Analytics examType={examType} />}
           {activeScreen === 'study-map' && <StudyMap onStart={startSession} />}
           {activeScreen === 'quiz' && <QuizMode examType={examType} />}

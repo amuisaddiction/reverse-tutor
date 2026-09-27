@@ -27,9 +27,9 @@ const Analytics = ({ examType }) => {
 
   // Generate bar chart data
   const accuracyData = [
-    { label: 'Physics', val: 78, color: 'bg-emerald-500' },
-    { label: 'Chemistry', val: 92, color: 'bg-indigo-500' },
-    { label: 'Math', val: 64, color: 'bg-rose-500' },
+    { label: 'Physics', val: 0, color: 'bg-emerald-500' },
+    { label: 'Chemistry', val: 0, color: 'bg-indigo-500' },
+    { label: 'Math', val: 0, color: 'bg-rose-500' },
   ];
 
   return (
@@ -148,4 +148,6 @@ const Analytics = ({ examType }) => {
 };
 
 export default Analytics;
+
+
 
