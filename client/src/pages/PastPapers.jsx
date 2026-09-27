@@ -22,6 +22,15 @@ const PastPapers = ({ examType }) => {
   });
 
   const startTest = async (paper) => {
+    // Add realistic dummy questions if missing so it doesn't crash
+    if (!paper.questions) {
+      paper.questions = [
+        { q: "A particle is projected with velocity v at an angle theta. What is the maximum height?", options: ["v^2 sin^2(theta) / 2g", "v^2 sin(2theta) / g", "v sin(theta) / g", "v^2 / 2g"], answer: 0 },
+        { q: "The work function of a metal is 4.2 eV. Will photoelectric emission occur for incident light of wavelength 330 nm?", options: ["Yes", "No", "Depends on intensity", "Data insufficient"], answer: 1 },
+        { q: "Evaluate the integral of x^2 * e^x dx.", options: ["e^x(x^2 - 2x + 2)", "e^x(x^2 + 2x + 2)", "e^x(x^2 - 2x)", "e^x(x^2)"], answer: 0 },
+        { q: "What is the hybridisation of Carbon in Benzene?", options: ["sp3", "sp2", "sp", "sp3d"], answer: 1 }
+      ];
+    }
     setActivePaper(paper);
     const duration = examType === 'NEET' ? 3 * 3600 + 20 * 60 : 3 * 3600;
     

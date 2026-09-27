@@ -1,37 +1,36 @@
 import express from 'express';
-import Anthropic from '@anthropic-ai/sdk';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const router = express.Router();
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
 
 router.post('/', async (req, res) => {
   try {
     const { topic, misconception, messages } = req.body;
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const historyText = messages.map(m => `${m.role === 'user' ? 'Tutor' : 'Student'}: ${m.content}`).join('\n');
 
     const systemPrompt = `You are Ravi, a Class 11 student who is confused about ${topic}.
 Your hidden misconception is: ${misconception}
 You genuinely believe this misconception is correct.
+
 Rules:
-- Never admit the misconception directly until score >= 90
-- Ask follow-up questions that reveal your confusion
-- React authentically when explanations partially help
-- Keep language casual, like a student texting a friend
-- Max 3 sentences per reply
-Do NOT break character.`;
+- Act like a confused student texting their tutor for help.
+- The user is the Tutor. You are the Student.
+- Keep language casual.
+- Never admit the misconception directly until the tutor points it out.
+- If the tutor explains poorly, ask a follow up question that reveals your confusion.
+- Max 2-3 sentences per reply.
+- DO NOT BREAK CHARACTER.
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 256,
-      system: systemPrompt,
-      messages: messages,
-    });
+Here is the conversation so far:
+${historyText}
 
-    res.json({ message: response.content[0].text });
+Student:`;
+
+    const result = await model.generateContent(systemPrompt);
+    res.json({ message: result.response.text().trim() });
   } catch (error) {
     console.error('Chat API Error:', error);
     res.status(500).json({ error: 'Failed to fetch AI response' });

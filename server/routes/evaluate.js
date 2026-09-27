@@ -1,38 +1,33 @@
 import express from 'express';
-import Anthropic from '@anthropic-ai/sdk';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const router = express.Router();
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
 
 router.post('/', async (req, res) => {
   try {
     const { topic, misconception, transcript, userMessage } = req.body;
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const systemPrompt = `You are a strict learning evaluator.
+    const prompt = `You are a strict learning evaluator.
 Topic: ${topic}
-Hidden misconception: ${misconception}
+Hidden misconception of the student: ${misconception}
 Conversation transcript: ${transcript}
-Latest user message: ${userMessage}
+Latest tutor explanation: ${userMessage}
 
-Return ONLY valid JSON. No preamble. Schema:
-{ "score_delta": 0-25, "clarity": 1-10, 
-  "analogy_used": bool, "gap_addressed": bool, "reason": string }`;
+Did the tutor address the misconception well?
+Return ONLY a raw valid JSON object. No markdown formatting, no preamble. Schema:
+{ 
+  "score_delta": 0-25,
+  "clarity": 1-10,
+  "analogy_used": true/false,
+  "gap_addressed": true/false,
+  "reason": "short explanation of your score"
+}`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 300,
-      system: systemPrompt,
-      messages: [
-        { role: 'user', content: 'Evaluate the latest user message and return the JSON.' }
-      ],
-    });
-
-    const content = response.content[0].text;
+    const result = await model.generateContent(prompt);
+    const content = result.response.text();
+    
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {
