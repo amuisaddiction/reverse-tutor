@@ -145,13 +145,31 @@ const Session = ({ topic, difficulty, onBack }) => {
       )}
 
       {!sessionComplete && (
-        <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] z-20 flex justify-center">
+        <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] z-20 flex justify-center flex-col items-center gap-2">
+          {!speechSupported && (
+             <div className="text-xs text-red-400 font-mono">⚠️ Voice recognition is not supported in this browser (use Chrome or Edge).</div>
+          )}
           <form onSubmit={handleSend} className="flex gap-4 w-full max-w-3xl">
+            <button
+              type="button"
+              disabled={!speechSupported}
+              onClick={() => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) return;
+                const recognition = new SpeechRecognition();
+                recognition.onresult = (event) => setInput(event.results[0][0].transcript);
+                recognition.start();
+              }}
+              className="bg-slate-100 text-slate-500 hover:text-indigo-600 px-4 rounded-xl border border-slate-200 hover:border-indigo-200 transition-colors disabled:opacity-50 flex items-center justify-center"
+              title="Speak"
+            >
+              🎤
+            </button>
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type your explanation to correct the AI..." 
+              placeholder="Type or speak your explanation to correct the AI..." 
               className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all text-slate-800"
             />
             <button 
