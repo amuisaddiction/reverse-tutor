@@ -5,6 +5,19 @@ import ScoreCard from '../components/ScoreCard';
 
 const Session = ({ topic, difficulty, onBack }) => {
   const [messages, setMessages] = useState([]);
+
+  if (!topic) {
+    return (
+      <div className="flex flex-col h-screen bg-slate-50 items-center justify-center p-8 text-center">
+        <div className="text-6xl mb-6">??</div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-4">No Topic Selected</h2>
+        <p className="text-slate-500 mb-8 max-w-md">Please go back to the Dashboard or Curriculum Map and select a specific topic to start your AI tutoring session.</p>
+        <button onClick={onBack} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-colors">
+          Go to Dashboard
+        </button>
+      </div>
+    );
+  }
   const [input, setInput] = useState('');
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -184,5 +197,6 @@ const Session = ({ topic, difficulty, onBack }) => {
 };
 
 export default Session;
+
 
 
