@@ -46,17 +46,9 @@ app.post('/api/exam/start', (req, res) => {
 });
 
 // Connect to MongoDB
-try {
-  if (process.env.MONGO_URI) {
-    mongoose.connect(process.env.MONGO_URI)
-      .then(() => console.log('Connected to MongoDB'))
-      .catch((err) => console.error('MongoDB async connection error:', err));
-  } else {
-    console.warn('WARNING: MONGO_URI is undefined. Running in mock/offline mode.');
-  }
-} catch (e) {
-  console.error('MongoDB synchronous connection error:', e);
-}
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 // Priority 1: Cold-Start Inertia Mitigation
 app.get('/health', (req, res) => res.status(200).json({ status: "online", timestamp: new Date() }));
