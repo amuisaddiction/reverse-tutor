@@ -1,202 +1,263 @@
 import React, { useState, useRef, useEffect } from 'react';
-import MeterBar from '../components/MeterBar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, ArrowLeft, BrainCircuit, Activity, CheckCircle, Zap } from 'lucide-react';
 import ChatBubble from '../components/ChatBubble';
+import TypingIndicator from '../components/TypingIndicator';
+import MeterBar from '../components/MeterBar';
+import RevealBug from '../components/RevealBug';
 import ScoreCard from '../components/ScoreCard';
+import { useSession } from '../hooks/useSession';
 
-const Session = ({ topic, difficulty, onBack }) => {
+const Session = ({ topic, onEnd }) => {
+  const [sessionId, setSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
-
-  if (!topic) {
-    return (
-      <div className="flex flex-col h-screen bg-slate-50 items-center justify-center p-8 text-center">
-        <div className="text-6xl mb-6">??</div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">No Topic Selected</h2>
-        <p className="text-slate-500 mb-8 max-w-md">Please go back to the Dashboard or Curriculum Map and select a specific topic to start your AI tutoring session.</p>
-        <button onClick={onBack} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-colors">
-          Go to Dashboard
-        </button>
-      </div>
-    );
-  }
   const [input, setInput] = useState('');
-  const [score, setScore] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [shakeMeter, setShakeMeter] = useState(false);
-  const [sessionComplete, setSessionComplete] = useState(false);
-  const [showScore, setShowScore] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [score, setScore] = useState(20);
+  const [isComplete, setIsComplete] = useState(false);
+  const [revealedBug, setRevealedBug] = useState(null);
   
-  const [clarityScores, setClarityScores] = useState([]);
-  const [analogyUsed, setAnalogyUsed] = useState(false);
-  const [gapFound, setGapFound] = useState(false);
-  
-  // Priority 3: Speech API fallback
-  const [speechSupported, setSpeechSupported] = useState(true);
+  // Real-time evaluation stats
+  const [evalStats, setEvalStats] = useState({ clarity: 0, analogy: false, gapAddressed: false });
 
   const messagesEndRef = useRef(null);
-  
-  useEffect(() => {
-    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-      setSpeechSupported(false);
-    }
-  }, []);
-  
-  const misconception = topic[difficulty]?.misconception || `I have a fundamental misunderstanding of ${topic.label}.`;
+  const { sessionTime, startTimer, stopTimer } = useSession();
 
+  // Initialize Session
   useEffect(() => {
-    setMessages([
-      { role: 'assistant', content: `Hey, I'm struggling with ${topic.label}. I think I have a flawed understanding of it. Can you explain it to me?` }
-    ]);
+    if (!topic) return;
+
+    let isMounted = true;
+
+    const initSession = async () => {
+      setIsTyping(true);
+      try {
+        const res = await fetch('https://reverse-tutor.onrender.com/api/chat/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: topic.label })
+        });
+        
+        if (!res.ok) throw new Error('Failed to create session');
+        
+        const data = await res.json();
+        
+        if (isMounted) {
+          setSessionId(data.sessionId);
+          setMessages([{ role: 'ai', content: data.initialMessage }]);
+          setScore(20);
+          setIsComplete(false);
+          setRevealedBug(null);
+          setEvalStats({ clarity: 0, analogy: false, gapAddressed: false });
+          startTimer();
+        }
+      } catch (err) {
+        console.error('Failed to init session:', err);
+      } finally {
+        if (isMounted) setIsTyping(false);
+      }
+    };
+
+    initSession();
+
+    return () => {
+      isMounted = false;
+      stopTimer();
+    };
   }, [topic]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  useEffect(() => {
-    if (score >= 90 && !sessionComplete) {
-      setSessionComplete(true);
-    }
-  }, [score, sessionComplete]);
+  if (!topic) {
+    return (
+      <div className="min-h-screen bg-vercel-dark p-8 flex items-center justify-center flex-col text-center">
+        <BrainCircuit size={48} className="text-rose-500 mb-6" />
+        <h2 className="text-2xl font-bold text-white mb-2">No Topic Selected</h2>
+        <p className="text-slate-400 mb-6">Please select a topic from the dashboard to start teaching.</p>
+        <button 
+          onClick={onEnd}
+          className="bg-white text-black px-6 py-2 rounded-md font-medium hover:bg-slate-200 transition-colors"
+        >
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || loading || sessionComplete) return;
+  // Loading state while generating the hidden misconception
+  if (!sessionId && isTyping) {
+    return (
+      <div className="min-h-screen bg-vercel-dark flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <BrainCircuit size={48} className="text-electric-indigo animate-pulse" />
+          <p className="text-slate-400 font-mono text-sm">Initializing Feynman Engine...</p>
+        </div>
+      </div>
+    );
+  }
 
-    const userMessage = input.trim();
+  const sendMessage = async () => {
+    if (!input.trim() || !sessionId) return;
+
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
-    
-    const newMessages = [...messages, { role: 'user', content: userMessage }];
-    setMessages(newMessages);
-    setLoading(true);
+    setIsTyping(true);
 
     try {
-      const chatRes = await fetch('https://reverse-tutor.onrender.com/api/chat', {
+      const res = await fetch('https://reverse-tutor.onrender.com/api/chat/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic.label, misconception, messages: newMessages })
-      });
-      const chatData = await chatRes.json();
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: chatData.message }]);
-
-      const evalRes = await fetch('https://reverse-tutor.onrender.com/api/evaluate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          topic: topic.label, 
-          misconception, 
-          transcript: JSON.stringify(newMessages), 
-          userMessage 
+        body: JSON.stringify({
+          sessionId,
+          userMessage: userMessage.content
         })
       });
-      const evalData = await evalRes.json();
+
+      if (!res.ok) throw new Error('Failed to send message');
+
+      const data = await res.json();
+
+      setIsTyping(false);
+      setMessages(prev => [...prev, { role: 'ai', content: data.message }]);
       
-      if (evalData.score_delta > 0) {
-        setScore(prev => Math.min(prev + evalData.score_delta, 100));
-      } else {
-        setShakeMeter(true);
-        setTimeout(() => setShakeMeter(false), 500);
+      // Update Live Stats
+      setEvalStats({
+        clarity: data.evaluation.clarity || 0,
+        analogy: data.evaluation.analogy || false,
+        gapAddressed: data.evaluation.gapAddressed || false
+      });
+
+      // Update Score & Bug
+      setScore(data.evaluation.score);
+      if (data.misconception) {
+        setRevealedBug(data.misconception);
       }
 
-      if (evalData.clarity) setClarityScores(prev => [...prev, evalData.clarity]);
-      if (evalData.analogy_used) setAnalogyUsed(true);
-      if (evalData.gap_addressed) setGapFound(true);
+      if (data.isComplete) {
+        setIsComplete(true);
+        stopTimer();
+      }
 
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "Network error occurred." }]);
+    } catch (err) {
+      console.error(err);
+      setIsTyping(false);
     }
-    setLoading(false);
   };
 
-  const avgClarity = clarityScores.length > 0 
-    ? Math.round(clarityScores.reduce((a, b) => a + b, 0) / clarityScores.length) 
-    : 0;
-
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
-      <header className="bg-white px-8 py-5 shadow-sm border-b border-slate-200 flex items-center justify-between z-10">
-        <button onClick={onBack} className="text-slate-400 font-bold hover:text-slate-800 transition-colors">
-          ← Exit Session
-        </button>
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{topic.emoji}</span>
-          <h2 className="font-bold text-xl text-slate-800">{topic.label}</h2>
+    <div className="flex h-screen bg-vercel-dark text-slate-300 font-sans overflow-hidden">
+      
+      {/* Left Sidebar - Live Analytics & Graph */}
+      <div className="w-80 border-r border-vercel-border bg-vercel-card flex flex-col">
+        <div className="p-6 border-b border-vercel-border flex items-center justify-between">
+          <button onClick={onEnd} className="text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <span className="font-mono text-xs uppercase tracking-widest text-slate-500">Live Telemetry</span>
+          <Activity size={16} className="text-electric-indigo" />
         </div>
-        <div className="w-24"></div>
-      </header>
 
-      <div className="bg-white/80 backdrop-blur-md px-8 py-5 shadow-sm border-b border-slate-200 z-10 sticky top-0">
-        <MeterBar score={score} shake={shakeMeter} />
+        <div className="p-6 flex-1 overflow-y-auto">
+          <ScoreCard score={score} />
+          <RevealBug misconception={revealedBug || "Hidden Misconception"} isRevealed={!!revealedBug} />
+          
+          <div className="mt-8 space-y-6">
+            <div>
+              <div className="flex justify-between text-xs font-mono uppercase text-slate-500 mb-2">
+                <span>Explanation Clarity</span>
+                <span className="text-white">{evalStats.clarity}/10</span>
+              </div>
+              <MeterBar value={evalStats.clarity * 10} color="bg-emerald-500" />
+            </div>
+            
+            <div className="flex items-center gap-3 bg-vercel-dark p-3 rounded-lg border border-vercel-border">
+              <div className={`w-2 h-2 rounded-full ${evalStats.analogy ? 'bg-electric-indigo' : 'bg-slate-600'}`} />
+              <span className="text-sm">Analogy Detected</span>
+            </div>
+
+            <div className="flex items-center gap-3 bg-vercel-dark p-3 rounded-lg border border-vercel-border">
+              <div className={`w-2 h-2 rounded-full ${evalStats.gapAddressed ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+              <span className="text-sm">Misconception Targeted</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <main className="flex-1 overflow-y-auto p-8 flex justify-center bg-slate-50">
-        <div className="w-full max-w-3xl flex flex-col justify-end min-h-full pb-8">
-          {messages.map((msg, idx) => (
-            <ChatBubble key={idx} message={msg} />
-          ))}
-          {loading && (
-            <div className="flex w-full mb-6 justify-start">
-               <div className="bg-white border border-slate-200 text-slate-400 font-serif italic max-w-[75%] rounded-2xl rounded-tl-sm p-5 shadow-sm">
-                 Thinking...
-               </div>
-            </div>
-          )}
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col relative">
+        <div className="p-6 border-b border-vercel-border flex items-center gap-4 bg-vercel-dark/80 backdrop-blur-md z-10">
+          <span className="text-4xl">{topic.emoji}</span>
+          <div>
+            <h2 className="text-xl font-bold text-white leading-tight">Teaching: {topic.label}</h2>
+            <p className="text-xs text-slate-500 font-mono">Time elapsed: {Math.floor(sessionTime / 60)}:{(sessionTime % 60).toString().padStart(2, '0')}</p>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-8 space-y-6 scroll-smooth pb-32">
+          <AnimatePresence>
+            {messages.map((m, i) => (
+              <ChatBubble key={i} message={m} />
+            ))}
+            {isTyping && <TypingIndicator />}
+          </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
-      </main>
 
-      {sessionComplete && !showScore && (
-        <div className="p-6 bg-white border-t border-slate-200 flex justify-center shadow-2xl z-20">
-          <button 
-            onClick={() => setShowScore(true)}
-            className="w-full max-w-md bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/30"
-          >
-            Reveal the Misconception
-          </button>
-        </div>
-      )}
-
-      {!sessionComplete && (
-        <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] z-20 flex justify-center">
-          <form onSubmit={handleSend} className="flex gap-4 w-full max-w-3xl">
+        {/* Input Area */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-vercel-dark via-vercel-dark/90 to-transparent">
+          <div className="max-w-4xl mx-auto flex gap-3">
+            <button className="p-4 bg-vercel-card border border-vercel-border rounded-xl text-slate-400 hover:text-white transition-colors">
+              🎤
+            </button>
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type your explanation to correct the AI..." 
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-6 py-4 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all text-slate-800"
+              onKeyDown={e => e.key === 'Enter' && sendMessage()}
+              placeholder="Explain the concept clearly..."
+              className="flex-1 bg-vercel-card border border-vercel-border rounded-xl px-6 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-electric-indigo transition-colors"
             />
             <button 
-              type="submit" 
-              disabled={loading || !input.trim()}
-              className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-500 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-600/30"
+              onClick={sendMessage}
+              className="bg-electric-indigo text-white px-6 rounded-xl font-medium hover:bg-indigo-500 transition-colors flex items-center gap-2"
             >
-              Send
+              <Send size={18} />
             </button>
-          </form>
+          </div>
         </div>
-      )}
 
-      {showScore && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <ScoreCard 
-            topic={topic}
-            difficulty={difficulty}
-            turns={Math.floor(messages.length / 2)}
-            clarity={avgClarity}
-            analogyUsed={analogyUsed}
-            gapFound={gapFound}
-            misconception={misconception}
-            reset={onBack}
-          />
-        </div>
-      )}
+        {/* Completion Overlay */}
+        <AnimatePresence>
+          {isComplete && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="absolute inset-0 bg-vercel-dark/95 backdrop-blur-sm z-50 flex items-center justify-center p-8"
+            >
+              <div className="bg-vercel-card border border-vercel-border p-10 rounded-2xl max-w-md w-full text-center">
+                <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle size={40} className="text-emerald-500" />
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">Concept Mastered!</h2>
+                <p className="text-slate-400 mb-8">You successfully cleared Ravi's misconception using the Feynman Technique.</p>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={onEnd}
+                    className="flex-1 bg-white text-black py-3 rounded-lg font-bold hover:bg-slate-200 transition-colors"
+                  >
+                    Complete Session
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </div>
     </div>
   );
 };
 
 export default Session;
-
-
-

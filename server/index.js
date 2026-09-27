@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 import authRouter from './routes/auth.js';
 import chatRouter from './routes/chat.js';
-import evaluateRouter from './routes/evaluate.js';
+
 import doubtRoutes from './routes/doubt.js';
 import graphRouter from './routes/graph.js';
 import debateRouter from './routes/debate.js';
@@ -28,7 +28,7 @@ app.use(express.json({ limit: '10mb' }));
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
-app.use('/api/evaluate', evaluateRouter);
+
 app.use('/api/doubt', doubtRoutes);
 app.use('/api/graph', graphRouter);
 app.use('/api/debate', debateRouter);
