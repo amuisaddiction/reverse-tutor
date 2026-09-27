@@ -121,9 +121,9 @@ const StudyMap = ({ onStart }) => {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="absolute top-4 md:top-6 right-4 md:right-6 w-[calc(100%-2rem)] md:w-80 bg-vercel-dark/95 backdrop-blur-md border border-vercel-border rounded-xl p-6 shadow-2xl z-10"
+            className="absolute top-6 right-6 w-80 bg-vercel-dark/95 backdrop-blur-md border border-vercel-border rounded-xl p-6 shadow-2xl"
           >
-            <h3 className="font-bold mb-4 uppercase text-xs tracking-widest text-slate-400">Diagnostic Summary</h3>
+            <h3 className="text-white font-bold mb-4 uppercase text-xs tracking-widest text-slate-500">Diagnostic Summary</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-300">Strongest Concept</span>
